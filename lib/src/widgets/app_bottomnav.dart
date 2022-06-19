@@ -1,5 +1,6 @@
-import 'package:esi_tfg_app/src/models/contact.dart';
 import 'package:flutter/material.dart';
+import 'package:esi_tfg_app/src/screens/chat_screen.dart';
+import 'package:esi_tfg_app/src/services/contact.dart';
 
 class BottomNav extends StatefulWidget {
   const BottomNav({Key? key}) : super(key: key);
@@ -14,10 +15,7 @@ class _BottomNavState extends State<BottomNav> {
       TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 0, 151, 215));
   static const List<Widget> _widgetOptions = <Widget>[
     Contact(),
-    Text(
-      'Index 1: Logros',
-      style: optionStyle,
-    ),
+    ChatScreen(),
     Text(
       'Index 2: Usuarios',
       style: optionStyle,
@@ -37,7 +35,7 @@ class _BottomNavState extends State<BottomNav> {
         child: _widgetOptions.elementAt(_selectedIndex),
       ),
       bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: Colors.blue,
+        backgroundColor: const Color.fromARGB(255, 180, 50, 87),
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.home),

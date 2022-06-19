@@ -1,12 +1,19 @@
-import 'package:esi_tfg_app/src/screens/bottom_navigation.dart';
 import 'package:flutter/material.dart';
-import 'package:esi_tfg_app/src/screens/login_screen.dart';
+import 'package:esi_tfg_app/src/services/authentication.dart';
+import 'package:esi_tfg_app/src/widgets/app_bottomnav.dart';
 
-class Home extends StatelessWidget {
+class Home extends StatefulWidget {
+  static const String routeName = "/home"; 
+  const Home({Key? key}) : super(key: key);
 
+  @override
+  _HomeState createState() => _HomeState();
+}
+
+class _HomeState extends State<Home> {
   Drawer getDrawer(BuildContext context){
-
-    var header = DrawerHeader(child: Image.asset('assets/images/logo_esi_titulo.png',height: 120.0, width: 135.0,));
+    var header = DrawerHeader(child: 
+          Image.asset('images/menthor_logo.png', scale: 0.8,),);
     var info = const AboutListTile(
       applicationVersion: "v0.1.0",
       icon: Icon(Icons.info),
@@ -17,7 +24,8 @@ class Home extends StatelessWidget {
       return ListTile(
         leading: icon,
         title: Text(description),
-        onTap: (){
+        onTap: (){          
+          Navigator.pop(context);
           Navigator.pushNamed(context, route);
         },
       );
@@ -28,19 +36,9 @@ class Home extends StatelessWidget {
         leading: icon,
         title: Text(description),
         onTap: (){
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context){
-                return const MaterialApp(
-                  title: "Iniciar Sesión",
-                  home: Scaffold(
-                    body: LoginScreen(),
-                  ),
-                );
-              },
-            ),
-          );
+          Authentiaction().signOut();
+          Navigator.pop(context);
+          Navigator.pop(context);
         }
       );
     }
@@ -49,7 +47,7 @@ class Home extends StatelessWidget {
       return ListView(
         children: <Widget>[
           header,
-          getItem(const Icon(Icons.home), "Página Principal","/"),   
+          getItem(const Icon(Icons.home), "Página Principal","/home"),   
           getItem(const Icon(Icons.settings), "Configuración", "/configuracion"),   
           getItem(const Icon(Icons.account_circle_rounded),"Perfil", "/perfil"),
           getItem(const Icon(Icons.group), "Equipo","/equipo"),   
@@ -68,6 +66,7 @@ class Home extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Muro"),
+        backgroundColor: const Color.fromARGB(255, 180, 50, 87),
       ),
       drawer: Drawer(
         child: getDrawer(context),

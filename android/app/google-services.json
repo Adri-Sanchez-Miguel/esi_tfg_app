@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "44398785703",
+    "project_id": "programa-menthor",
+    "storage_bucket": "programa-menthor.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:44398785703:android:6faec785883b3532985782",
+        "android_client_info": {
+          "package_name": "com.example.esi_tfg_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "44398785703-tdm0c9qrs4gcarirt3t7mutpti4vm03e.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDr5j7EJLNVNBggmsuqdtVH1mIUPw0cxBQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "44398785703-tdm0c9qrs4gcarirt3t7mutpti4vm03e.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

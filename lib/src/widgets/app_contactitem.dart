@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:esi_tfg_app/src/models/contact_model.dart'; 
+import 'package:esi_tfg_app/src/model/contact_model.dart'; 
 
 class ContactItem extends StatelessWidget {
   final ContactModel contact;

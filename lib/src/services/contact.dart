@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:esi_tfg_app/src/models/contact_model.dart';
-import 'package:esi_tfg_app/src/screens/contact_item.dart'; 
+import 'package:esi_tfg_app/src/model/contact_model.dart';
+import 'package:esi_tfg_app/src/widgets/app_contactitem.dart'; 
 
 class Contact extends StatelessWidget {
   const Contact({Key? key}) : super(key: key);
@@ -13,6 +13,9 @@ class Contact extends StatelessWidget {
       ContactModel(name: "Rodolfo", email: "rodolfo@gmail.com"),
       ContactModel(name: "Rosa", email: "rosa@gmail.com"),
       ContactModel(name: "Rocio", email: "rocio@gmail.com"),
+      ContactModel(name: "Remiro", email: "remiro@gmail.com"),
+      ContactModel(name: "Rubén", email: "ruben@gmail.com"),
+      ContactModel(name: "Rigoberto", email: "rigoberto@gmail.com"),
       ContactModel(name: "Roberto", email: "roberto@gmail.com")
     ];
   }
