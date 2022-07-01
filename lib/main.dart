@@ -1,3 +1,5 @@
+import 'package:esi_tfg_app/src/screens/selectdegree_screen.dart';
+import 'package:esi_tfg_app/src/screens/selectteam_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:esi_tfg_app/src/bloc/bloc.dart';
 import 'package:esi_tfg_app/src/screens/chat_screen.dart';
@@ -27,6 +29,8 @@ Future<void> main() async {
         ),
         initialRoute: WelcomeScreen.routeName,
         routes: <String, WidgetBuilder>{
+          SelectDegree.routeName:(BuildContext context) => const SelectDegree(),
+          SelectTeam.routeName: (BuildContext context) => const SelectTeam(),
           LoginScreen.routeName: (BuildContext context) => const LoginScreen(),
           WelcomeScreen.routeName: (BuildContext context) => const WelcomeScreen(),
           RegistrationScreen.routeName: (BuildContext context) => const RegistrationScreen(),

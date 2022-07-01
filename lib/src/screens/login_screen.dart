@@ -1,3 +1,4 @@
+import 'package:esi_tfg_app/src/services/firestore_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:esi_tfg_app/src/bloc/bloc.dart';
@@ -132,8 +133,19 @@ class _LoginScreenState extends State<LoginScreen>{
             try {
               setSpinnersStatus(true);
               var auth = await Authentiaction().loginUser(email: _email, password: _password);
-              if (auth.success){
-                Navigator.pushNamed(context, "/home");
+              if (auth.success){              
+                var users = await FirestoreService().getMessage(collectionName: "users");
+                var finalUser = users.docs.firstWhere((element) => element["email"] == _email);
+                // Condición por si no hay equipo
+                if(finalUser['degree'] != ""){
+                  if(finalUser['team'].isNotEmpty){
+                    Navigator.pushNamed(context, "/home");
+                  }else{
+                    Navigator.pushNamed(context, "/selectteam");
+                  }
+                }else{
+                  Navigator.pushNamed(context, "/selectdegree");
+                }
                 _emailController.text = "";
                 _passwordController.text = "";
                 bloc.changeEmail;
@@ -149,6 +161,8 @@ class _LoginScreenState extends State<LoginScreen>{
             }
             catch(e){
               print(e);
+              print("try");
+
             }
           } : null, 
         );

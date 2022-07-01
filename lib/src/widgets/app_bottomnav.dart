@@ -6,7 +6,7 @@ class BottomNav extends StatefulWidget {
   const BottomNav({Key? key}) : super(key: key);
 
   @override
-  _BottomNavState createState() => _BottomNavState();
+  State<BottomNav> createState() => _BottomNavState();
 }
 
 class _BottomNavState extends State<BottomNav> {
@@ -14,6 +14,8 @@ class _BottomNavState extends State<BottomNav> {
   static const TextStyle optionStyle =
       TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 0, 151, 215));
   static const List<Widget> _widgetOptions = <Widget>[
+    // Acordarse de que cuando se crea un reto se crea una publicación asociada
+    // Ordenar publications por más recientes
     Contact(),
     ChatScreen(),
     Text(

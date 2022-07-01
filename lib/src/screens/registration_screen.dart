@@ -1,3 +1,4 @@
+import 'package:esi_tfg_app/src/services/firestore_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:esi_tfg_app/src/bloc/bloc.dart';
@@ -12,14 +13,15 @@ class RegistrationScreen extends StatefulWidget {
   const RegistrationScreen({Key? key}) : super(key: key);
 
   @override
-  _RegistrationScreenState createState() => _RegistrationScreenState();
+  State<RegistrationScreen> createState() => _RegistrationScreenState();
 }
 
 class _RegistrationScreenState extends State<RegistrationScreen>{
   String _email = "";
   String _password = "";
   late FocusNode _focusNode;
-  bool _showSpinner = false; 
+  bool _showSpinner = false;   
+  bool _isSelected = false;
   final GlobalKey<FormState> _formkey = GlobalKey<FormState>();
   String _errorMessage= "";
   late TextEditingController _emailController;
@@ -50,10 +52,9 @@ class _RegistrationScreenState extends State<RegistrationScreen>{
   @override
   Widget build(BuildContext context) {
     final bloc = Provider.of<Bloc>(context);
-    _emailController.text = "";
-    _passwordController.text = "";
     bloc.changeEmail;
     bloc.changePassword;
+    
     return Scaffold(
       body: ModalProgressHUD(
         inAsyncCall: _showSpinner,
@@ -66,11 +67,13 @@ class _RegistrationScreenState extends State<RegistrationScreen>{
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
                 Image.asset('images/menthor_logo.png'),
-                const SizedBox(height: 30.0,),
+                const SizedBox(height: 25.0,),
                 _emailField(bloc),
                 const SizedBox(height: 15.0,),
                 _passwordField(bloc),
                 const SizedBox(height: 15.0,),
+                _getStudentRole(),
+                const SizedBox(height: 10.0,),
                 _submitButton(bloc),
                 _showErrorMessage()
               ],
@@ -114,6 +117,7 @@ class _RegistrationScreenState extends State<RegistrationScreen>{
       }
     );
   }
+
   Widget _submitButton(Bloc bloc){
     return StreamBuilder(
       stream: bloc.submitValid,
@@ -129,7 +133,9 @@ class _RegistrationScreenState extends State<RegistrationScreen>{
               setSpinnersStatus(true);
               var auth= await Authentiaction().createUser(email: _email, password: _password);
               if(auth.success){
-                Navigator.pushNamed(context, "/home");
+                _createUser(_emailController.text);
+                _createInitialPublication(_emailController.text);
+                Navigator.pushNamed(context, "/selectdegree");
                 _emailController.text = "";
                 _passwordController.text = "";
                 bloc.changeEmail;
@@ -137,7 +143,6 @@ class _RegistrationScreenState extends State<RegistrationScreen>{
                 FocusScope.of(context).requestFocus(_focusNode);
               }else{
                 _errorMessage = auth.errorMessage;
-                print(_errorMessage);
               }
               setSpinnersStatus(false);
             }
@@ -148,6 +153,60 @@ class _RegistrationScreenState extends State<RegistrationScreen>{
         );
       }
     );
+  }
+
+  Widget _getStudentRole() {
+    return SwitchListTile(
+      title: const Text('Mentorizado (en 1º)',style: TextStyle(fontSize: 20.0),),
+      value: _isSelected,
+      onChanged: (bool value) {
+        setState(() {
+          _isSelected = value;
+        });
+      },
+      secondary: const Icon(Icons.school),
+    );
+  }
+
+  String _getFinalRole(String email){
+    if(email.endsWith('@uclm.es')){
+        return "profesor";
+    }
+    else{
+      if(_isSelected){
+        return "mentorizado";
+      }else{
+        return "mentor";
+      }
+    }
+  }
+
+  void _createUser(String email) async{
+    var snap = await FirestoreService().getMessage(collectionName: "challenges");
+    var initialChallenge = snap.docs.firstWhere((element) => element.reference.toString() == "DocumentReference<Map<String, dynamic>>(challenges/6PAWfB7ZujBpZbdVyNeS)").reference;
+    await FirestoreService().save(collectionName: "users", collectionValues: {
+      'email': email,
+      'role': _getFinalRole(email),
+      'image': '',
+      'degree':'',
+      'status': 0,
+      'challenges_completed': {"1": initialChallenge},
+      'sign_up_date': DateTime.now(),
+      'team': {}
+    }); 
+  }
+
+  void _createInitialPublication(String email) async{
+    var snap = await FirestoreService().getMessage(collectionName: "challenges");
+    var challenge = snap.docs.firstWhere((element) => element.reference.toString() == "DocumentReference<Map<String, dynamic>>(challenges/6PAWfB7ZujBpZbdVyNeS)").reference;
+    await FirestoreService().save(collectionName: "publications", collectionValues: {
+      'challenge': challenge,
+      'user': email,
+      'visibility': 'all',
+      'title': '¡Hola mundo!',
+      'creation_date': DateTime.now(),
+      'description': 'Un nuevo usuario/a se ha unido al programa Menthor. ¡A por todas!'
+    }); 
   }
 
   Widget _showErrorMessage(){
