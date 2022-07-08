@@ -17,4 +17,8 @@ class FirestoreService{
   Future<QuerySnapshot<Map<String, dynamic>>> getMessage({required String collectionName}) async {
     return await _fireStore.collection(collectionName).get();
   }
+
+  Future<QuerySnapshot<Map<String, dynamic>>> getOrderedMessage({required String field, required String collectionName}) async {
+    return await _fireStore.collection(collectionName).orderBy(field, descending: true).get();
+  }
 }

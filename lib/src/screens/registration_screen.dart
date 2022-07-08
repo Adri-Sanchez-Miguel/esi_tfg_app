@@ -203,6 +203,7 @@ class _RegistrationScreenState extends State<RegistrationScreen>{
       'challenge': challenge,
       'user': email,
       'visibility': 'all',
+      'decider': null,
       'title': '¡Hola mundo!',
       'creation_date': DateTime.now(),
       'description': 'Un nuevo usuario/a se ha unido al programa Menthor. ¡A por todas!'

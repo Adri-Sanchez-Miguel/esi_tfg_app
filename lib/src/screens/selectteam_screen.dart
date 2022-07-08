@@ -123,7 +123,7 @@ class _SelectTeamState extends State<SelectTeam> {
       const SizedBox(height: 20.0,),
       _getListViewTeams(),
       const SizedBox(height: 20.0,),   
-      const Center(child: Text("Tip: If no team appears, that means they are full. Please contact menthor.uclm@gmail.com for a quick solution.", 
+      const Center(child: Text("Tip: If no team appears, that means they are full. Please send a message to menthor.uclm@gmail.com for a quick solution.", 
         style: TextStyle(fontSize: 16.0),
       )),
       const SizedBox(height: 10.0,),

@@ -8,8 +8,9 @@ class AppTextField extends StatelessWidget {
   final TextInputType? keyboardType;
   final FocusNode? focusNode;
   final String label;
+  final Widget? icon;
   final String? error;
-  const AppTextField({Key? key, required this.hint, required this.onChanged, required this.obscureText, this.focusNode, this.keyboardType, required this.label, required this.error, required this.controller}) : super(key: key);
+  const AppTextField({Key? key, required this.hint, this.onChanged, required this.obscureText, this.focusNode, this.keyboardType, required this.label, required this.error, required this.controller, this.icon}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -18,6 +19,7 @@ class AppTextField extends StatelessWidget {
       keyboardType: keyboardType,
       focusNode: focusNode,
       decoration: InputDecoration(
+        icon: icon,
         contentPadding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
         hintText: hint,
         labelText: label,
