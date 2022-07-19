@@ -12,7 +12,7 @@ class Team extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: const Text("Team"),
+          title: const Text("Equipo"),
           backgroundColor: const Color.fromARGB(255, 180, 50, 87),
         ),
       body: Container(

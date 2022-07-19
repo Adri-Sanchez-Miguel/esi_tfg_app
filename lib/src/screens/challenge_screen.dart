@@ -1,10 +1,14 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:esi_tfg_app/src/screens/detail/challenge_detail.dart';
 import 'package:esi_tfg_app/src/widgets/app_card.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:esi_tfg_app/src/services/authentication.dart';
 import 'package:esi_tfg_app/src/services/firestore_service.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 
 class ChallengeScreen extends StatefulWidget {
@@ -37,8 +41,12 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
       });
     }
     }catch(e){
-      //Hacer llamada a método para mostrar error en pantalla
-      print(e);
+      Fluttertoast.showToast(
+        msg: e.toString(),
+        fontSize: 20,
+        gravity: ToastGravity.CENTER,
+        backgroundColor: Colors.red[400]
+      );
     }
   }
 
@@ -73,8 +81,22 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
     return FutureBuilder<QuerySnapshot<Map<String, dynamic>>>(
       future: FirestoreService().getMessage(collectionName: "challenges"),
       builder: (context, snapshot){
-        if(snapshot.hasData){
-          return Flexible(
+        return snapshot.connectionState == ConnectionState.waiting ? 
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,    
+          children:<Widget>[
+            Container(
+              padding: const EdgeInsets.only(top: 100.0),
+              child: Center( 
+                child: Platform.isAndroid ? 
+                const CircularProgressIndicator() 
+                : const CupertinoActivityIndicator()
+              )
+            )
+          ]
+        )
+        : snapshot.hasData ? Flexible(
             child: RefreshIndicator(
               onRefresh: () async{
                 setState((){
@@ -89,12 +111,8 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
                   _getItems(context, snapshot.data!.docs[index]),
               )
             )
-          );
-        }else{
-          return Container(
-            height: 0.0,
-          );
-        }
+          )
+        : Container(height: 0.0,);
       },
     );
   }
@@ -108,14 +126,14 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
     String description = challenge['explanation'];
 
     if(endDate.year == 2039){
-      difference = "Ending in: Always available";
+      difference = "Fecha límite: Siempre disponible";
     }else{
       int hours = duration.inHours;
       if(hours>23){
         int days = duration.inDays;
-        difference = "Ending in : $days days";
+        difference = "Fecha límite : $days días";
       }else{
-        difference = "Endingin : $hours hours";
+        difference = "Fecha límite : $hours horas";
       }
     }
     return AppCard(

@@ -1,11 +1,15 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:esi_tfg_app/src/screens/detail/user_detail.dart';
 import 'package:esi_tfg_app/src/widgets/app_card.dart';
 import 'package:esi_tfg_app/src/widgets/app_texfield.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:esi_tfg_app/src/services/authentication.dart';
 import 'package:esi_tfg_app/src/services/firestore_service.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 
 class UsersScreen extends StatefulWidget {
@@ -40,8 +44,12 @@ class _UsersScreenState extends State<UsersScreen> {
       });
     }
     }catch(e){
-      //Hacer llamada a método para mostrar error en pantalla
-      print(e);
+      Fluttertoast.showToast(
+        msg: e.toString(),
+        fontSize: 20,
+        gravity: ToastGravity.CENTER,
+        backgroundColor: Colors.red[400]
+      );
     }
   }
 
@@ -109,7 +117,7 @@ class _UsersScreenState extends State<UsersScreen> {
       controller: _messageController,
       keyboardType: TextInputType.emailAddress,
       hint: "Email",
-      label: "Search email",
+      label: "Buscar usuario",
       obscureText: false
     ); 
   }
@@ -118,18 +126,30 @@ class _UsersScreenState extends State<UsersScreen> {
     return FutureBuilder<QuerySnapshot<Map<String, dynamic>>>(
       future: FirestoreService().getMessage(collectionName: "users"),
       builder: (context, snapshot){
-        if(snapshot.hasData){
-          return Flexible(
+        return snapshot.connectionState == ConnectionState.waiting ? 
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,    
+            children:<Widget>[
+              Container(
+                padding: const EdgeInsets.only(top: 100.0),
+                child: Center( 
+                  child: Platform.isAndroid ? 
+                  const CircularProgressIndicator() 
+                  : const CupertinoActivityIndicator()
+                )
+              )
+            ]
+          )        
+          : snapshot.hasData ? Flexible(
             child: ListView.builder(
               addRepaintBoundaries: true,
               itemCount: snapshot.data!.docs.length,
               itemBuilder: (context, index) =>
                 _getItems(context, snapshot.data!.docs[index], usersSearched),
             )
-          );
-        }else{
-          return Container(height: 0.0,);
-        }
+          )
+        : Container(height: 0.0,);
       },
     );
   }

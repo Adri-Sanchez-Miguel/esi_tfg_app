@@ -5,6 +5,7 @@ import 'package:esi_tfg_app/src/widgets/app_button.dart';
 import 'package:esi_tfg_app/src/widgets/app_card.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 
 class SelectDegree extends StatefulWidget {
@@ -34,7 +35,7 @@ class _SelectDegreeState extends State<SelectDegree> {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: const Text("Final options"),
+        title: const Text("Grado"),
         backgroundColor: const Color.fromARGB(255, 180, 50, 87),
       ),
       body: ModalProgressHUD(
@@ -45,7 +46,7 @@ class _SelectDegreeState extends State<SelectDegree> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,    
             children:  <Widget>[
-              const Text("Choose your degree:", style: TextStyle(fontSize: 25.0, fontWeight: FontWeight.w700, color: Color.fromARGB(255, 180, 50, 87)),),
+              const Text("Elige tu equipo:", style: TextStyle(fontSize: 25.0, fontWeight: FontWeight.w700, color: Color.fromARGB(255, 180, 50, 87)),),
               const SizedBox(height: 10.0,), 
               _getNameDegree(),
               const SizedBox(height: 10.0,), 
@@ -63,27 +64,30 @@ class _SelectDegreeState extends State<SelectDegree> {
     return FutureBuilder<QuerySnapshot<Map<String, dynamic>>>(
       future: FirestoreService().getMessage(collectionName: "degrees"),
       builder: (context, snapshot){
-      try{
-        if(snapshot.hasData){
-          return Flexible(
-            child: ListView.builder(
-              addRepaintBoundaries: true,
-              itemCount: snapshot.data!.docs.length,
-              itemBuilder: (context, index) =>
-                _getDegree(context, snapshot.data!.docs[index]),
-            ),
+        try{
+          if(snapshot.hasData){
+            return Flexible(
+              child: ListView.builder(
+                addRepaintBoundaries: true,
+                itemCount: snapshot.data!.docs.length,
+                itemBuilder: (context, index) =>
+                  _getDegree(context, snapshot.data!.docs[index]),
+              ),
+            );
+          }else{
+            return Container(
+              height: 0.0,
+            );
+          }
+        }catch(e){
+          Fluttertoast.showToast(
+            msg: e.toString(),
+            fontSize: 20,
+            gravity: ToastGravity.CENTER,
+            backgroundColor: Colors.red[400]
           );
-        }else{
-          return Container(
-            height: 0.0,
-          );
+          return Container (height: 0.0,);
         }
-      }catch(e){
-        print(e);
-        return Container(
-          height: 0.0,
-        );
-      }
       }
     );
   }
@@ -117,18 +121,21 @@ class _SelectDegreeState extends State<SelectDegree> {
       var user = await Authentiaction().getRightUser();
       var snap = await FirestoreService().getMessage(collectionName: "users");
       if (user != null){
-        setState(() {
-          _user = snap.docs.firstWhere((element) => element["email"] == user.email);
-        });
+        _user = snap.docs.firstWhere((element) => element["email"] == user.email);
       }
     }catch(e){
-      //Hacer llamada a método para mostrar error en pantalla
-      print(e);
+      Fluttertoast.showToast(
+        msg: e.toString(),
+        fontSize: 20,
+        gravity: ToastGravity.CENTER,
+        backgroundColor: Colors.red[400]
+      );
     }
-    await Future.delayed(const Duration(seconds: 1));
-    await FirestoreService().update(document: _user!.reference, collectionValues: {
-      'degree': _degree!['titulo'] 
-    }); 
+    if(_user!=null){
+      await FirestoreService().update(document: _user!.reference, collectionValues: {
+        'degree': _degree!['titulo'] 
+      }); 
+    }
   }
 
   Widget _getNameDegree(){
@@ -143,7 +150,7 @@ class _SelectDegreeState extends State<SelectDegree> {
       return AppButton(
         color: const Color.fromARGB(255, 180, 50, 87),
         colorText: Colors.white,
-        name: "Let's go!",
+        name: "Confirmar",
         onPressed:()async{
           _changeUserDegree();
           Navigator.pop(context);
@@ -154,7 +161,7 @@ class _SelectDegreeState extends State<SelectDegree> {
       return AppButton(
         color:Colors.black54,
         colorText: Colors.white54,
-        name: "Select a degree",
+        name: "Elija un grado",
         onPressed:()async{}
       );
     }

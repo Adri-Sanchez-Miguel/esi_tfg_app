@@ -1,5 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:esi_tfg_app/src/model/auth_request.dart';
+import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class Authentiaction{
   final _auth = FirebaseAuth.instance;
@@ -22,7 +24,12 @@ class Authentiaction{
       try{
         return await _auth.currentUser!;
       }catch(e){
-        print(e);
+        Fluttertoast.showToast(
+          msg: e.toString(),
+          fontSize: 20,
+          gravity: ToastGravity.CENTER,
+          backgroundColor: Colors.red[400]
+        );
       }
       return null;
     }
@@ -43,9 +50,13 @@ class Authentiaction{
     Future<void> signOut() async{
       try{
         return await _auth.signOut();
-      }
-      catch(e){
-        print(e);
+      }catch(e){
+        Fluttertoast.showToast(
+          msg: e.toString(),
+          fontSize: 20,
+          gravity: ToastGravity.CENTER,
+          backgroundColor: Colors.red[400]
+        );
       }
     }
 

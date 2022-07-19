@@ -5,12 +5,13 @@ class AppCard extends StatelessWidget {
   final Widget? title;
   final Widget? subtitle;
   final Widget? leading;
+  final Widget? trailing;
   final Color? color;
   final Color? iconColor;
   final Color? textColor;
   final Color borderColor;
   final double radius;
-  const AppCard({Key? key, this.onTap, this.title, this.subtitle, this.leading, this.color, this.textColor, this.iconColor, required this.radius, required this.borderColor}) : super(key: key);
+  const AppCard({Key? key, this.onTap, this.title, this.subtitle, this.leading, this.color, this.textColor, this.iconColor, required this.radius, required this.borderColor, this.trailing}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -31,6 +32,7 @@ class AppCard extends StatelessWidget {
           children: <Widget>[
             Expanded(
               child: ListTile(
+                trailing: trailing,
                 contentPadding: const EdgeInsets.all(5.0),
                 selectedColor: Colors.black,
                 iconColor: iconColor,

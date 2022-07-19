@@ -19,18 +19,18 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            Image.asset('images/menthor_logo.png'),
+                  Flexible(child: Image.asset('images/menthor_logo.png')),
             const SizedBox(height: 75.0,),
             AppButton(
               colorText:Colors.white,
               color: const Color.fromARGB(255, 180, 50, 87),
-              name: 'Sign in',
+              name: 'Iniciar sesión',
               onPressed: (){return Navigator.pushNamed(context, '/login');}
             ),
             AppButton(
               colorText:Colors.white,
               color: const Color.fromRGBO(179, 0, 51, 1.0),
-              name: 'Sign up',
+              name: 'Registrarse',
               onPressed: (){ return Navigator.pushNamed(context, '/registration');}
             ),
           ]

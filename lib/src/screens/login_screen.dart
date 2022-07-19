@@ -1,5 +1,6 @@
 import 'package:esi_tfg_app/src/services/firestore_service.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 import 'package:esi_tfg_app/src/bloc/bloc.dart';
 import 'package:esi_tfg_app/src/services/authentication.dart';
@@ -13,16 +14,14 @@ class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
 
   @override
-  _LoginScreenState createState() => _LoginScreenState();
+  State<LoginScreen> createState() => _LoginScreenState();
 }
 
 class _LoginScreenState extends State<LoginScreen>{
-  String _email = "";
-  String _password = "";
+  String _email = "", _password = "", _errorMessage= "";
   late FocusNode _focusNode;
   bool _showSpinner = false; 
   final GlobalKey<FormState> _formkey = GlobalKey<FormState>();
-  String _errorMessage= "";
   late TextEditingController _emailController;
   late TextEditingController _passwordController;
 
@@ -56,28 +55,30 @@ class _LoginScreenState extends State<LoginScreen>{
     bloc.changeEmail;
     bloc.changePassword;
     return Scaffold(
-      body: ModalProgressHUD(
-        inAsyncCall: _showSpinner,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 25.0),
-          child: Form(
-            key: _formkey,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: <Widget>[
-                Image.asset('images/menthor_logo.png'),
-                const SizedBox(height: 30.0,),
-                _emailField(bloc),
-                const SizedBox(height: 15.0,),
-                _passwordField(bloc),
-                const SizedBox(height: 15.0,),
-                _submitButton(bloc),
-                _showErrorMessage(),
-                const SizedBox(height: 10.0,),
-                const Text("En caso de olvidar la contraseña, enviar un correo a: menthor.uclm@gmail.com",
-                      textAlign: TextAlign.center,)
-              ]
+      body: SafeArea(
+        child: ModalProgressHUD(
+          inAsyncCall: _showSpinner,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 25.0),
+            child: Form(
+              key: _formkey,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: <Widget>[
+                  Flexible(child: Image.asset('images/menthor_logo.png')),
+                  const SizedBox(height: 30.0,),
+                  _emailField(bloc),
+                  const SizedBox(height: 15.0,),
+                  _passwordField(bloc),
+                  const SizedBox(height: 15.0,),
+                  _submitButton(bloc),
+                  _showErrorMessage(),
+                  const SizedBox(height: 10.0,),
+                  const Text("En caso de olvidar la contraseña, enviar un correo a: menthor.uclm@gmail.com",
+                        textAlign: TextAlign.center,)
+                ],
+              ),
             ),
           ),
         ),
@@ -93,7 +94,7 @@ class _LoginScreenState extends State<LoginScreen>{
           controller: _emailController,
           keyboardType: TextInputType.emailAddress,
           focusNode: _focusNode,
-          hint: "Your email",
+          hint: "Tu email",
           label: "Email",
           error: snapshot.error as String?,
           onChanged: bloc.changeEmail,
@@ -109,8 +110,8 @@ class _LoginScreenState extends State<LoginScreen>{
       builder: (context, snapshot) {
         return AppTextField(
           controller: _passwordController,
-          hint: "Your password",
-          label: "Password",
+          hint: "Tu contraseña",
+          label: "Contraseña",
           error: snapshot.error as String?,
           onChanged: bloc.changePassword,
           obscureText: true,
@@ -126,7 +127,7 @@ class _LoginScreenState extends State<LoginScreen>{
         return AppButton(
           color: snapshot.hasData && _emailController.text != "" && _passwordController.text != "" ? const Color.fromARGB(255, 180, 50, 87): Colors.black54,
           colorText: snapshot.hasData && _emailController.text != "" && _passwordController.text != "" ? Colors.white: Colors.white54,
-          name: 'Sign in',
+          name: 'Iniciar sesión',
           onPressed: snapshot.hasData && _emailController.text != "" && _passwordController.text != "" ? ()async{
             _email = bloc.submitEmail();
             _password = bloc.submitPassword();
@@ -158,11 +159,13 @@ class _LoginScreenState extends State<LoginScreen>{
                 );
               }
               setSpinnersStatus(false);
-            }
-            catch(e){
-              print(e);
-              print("try");
-
+            }catch(e){
+              Fluttertoast.showToast(
+                msg: e.toString(),
+                fontSize: 20,
+                gravity: ToastGravity.CENTER,
+                backgroundColor: Colors.red[400]
+              );
             }
           } : null, 
         );

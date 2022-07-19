@@ -13,8 +13,6 @@ class BottomNav extends StatefulWidget {
 class _BottomNavState extends State<BottomNav> {
   int _selectedIndex = 0;
   static const List<Widget> _widgetOptions = <Widget>[
-    // Acordarse de que cuando se crea un reto se crea una publicación asociada
-    // Ordenar publications por más recientes
     PublicationsScreen(),
     ChallengeScreen(),
     UsersScreen(),
@@ -41,10 +39,17 @@ class _BottomNavState extends State<BottomNav> {
           width: 60.0,
           child: PopupMenuButton(
             icon: const Icon(Icons.add, color:Colors.white, size: 40.0,),
-            itemBuilder: (context) => const [
-              PopupMenuItem(child: Text("Nuevo mensaje")),
-              PopupMenuItem(child: Text("Reclamar logro")),
-              PopupMenuItem(child: Text("Crear logro")),
+            itemBuilder: (context) => <PopupMenuEntry<Widget>>[
+              PopupMenuItem(child: const Center(child:Text("Nuevo mensaje")), onTap: (){
+                Navigator.pushNamed(context, "/message");
+              },),
+              PopupMenuItem(child: const Center(child:Text("Reclamar logro")), onTap: (){
+                Navigator.pushNamed(context, "/newchallenge");
+              },),
+              const PopupMenuDivider(),
+              PopupMenuItem(child: const Center(child:Text("Crear logro")), onTap: (){
+                Navigator.pushNamed(context, "/achieve");
+              },),
             ],
           )
         )

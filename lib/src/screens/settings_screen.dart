@@ -12,7 +12,7 @@ class Settings extends StatelessWidget {
       ),
       body: const Center(
         child: Text("Configuración")
-        ),
+        )
     );
   }
 }

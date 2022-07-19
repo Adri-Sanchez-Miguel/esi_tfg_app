@@ -1,5 +1,6 @@
 import 'package:esi_tfg_app/src/services/firestore_service.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 import 'package:esi_tfg_app/src/bloc/bloc.dart';
 import 'package:esi_tfg_app/src/services/authentication.dart';
@@ -7,6 +8,8 @@ import 'package:esi_tfg_app/src/widgets/app_button.dart';
 import 'package:esi_tfg_app/src/widgets/app_errormessage.dart';
 import 'package:esi_tfg_app/src/widgets/app_texfield.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
+
+enum Menu { mentor, mentorizado, profesor }
 
 class RegistrationScreen extends StatefulWidget {
   static const String routeName = '/registration';
@@ -17,13 +20,10 @@ class RegistrationScreen extends StatefulWidget {
 }
 
 class _RegistrationScreenState extends State<RegistrationScreen>{
-  String _email = "";
-  String _password = "";
+  String _role = "", _email = "", _password = "", _errorMessage = "";
   late FocusNode _focusNode;
   bool _showSpinner = false;   
-  bool _isSelected = false;
   final GlobalKey<FormState> _formkey = GlobalKey<FormState>();
-  String _errorMessage= "";
   late TextEditingController _emailController;
   late TextEditingController _passwordController;
 
@@ -56,27 +56,38 @@ class _RegistrationScreenState extends State<RegistrationScreen>{
     bloc.changePassword;
     
     return Scaffold(
-      body: ModalProgressHUD(
-        inAsyncCall: _showSpinner,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 25.0),
-          child: Form(
-            key: _formkey,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: <Widget>[
-                Image.asset('images/menthor_logo.png'),
-                const SizedBox(height: 25.0,),
-                _emailField(bloc),
-                const SizedBox(height: 15.0,),
-                _passwordField(bloc),
-                const SizedBox(height: 15.0,),
-                _getStudentRole(),
-                const SizedBox(height: 10.0,),
-                _submitButton(bloc),
-                _showErrorMessage()
-              ],
+      body: SafeArea(
+        child: ModalProgressHUD(
+          inAsyncCall: _showSpinner,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 25.0),
+            child: Form(
+              key: _formkey,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: <Widget>[
+                  Flexible(child: Image.asset('images/menthor_logo.png')),
+                  const SizedBox(height: 25.0,),
+                  _emailField(bloc),
+                  const SizedBox(height: 15.0,),
+                  _passwordField(bloc),
+                  const SizedBox(height: 15.0,),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Padding(padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                      child: Text('ROL: $_role', style: const TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),),),
+                      //_getStudentRole(),
+                      _getRole(),
+                      ]
+                    ),
+                  const SizedBox(height: 10.0,),
+                  _submitButton(bloc),
+                  _showErrorMessage()
+                ],
+              ),
             ),
           ),
         ),
@@ -92,7 +103,7 @@ class _RegistrationScreenState extends State<RegistrationScreen>{
           controller: _emailController,
           keyboardType: TextInputType.emailAddress,
           focusNode: _focusNode,
-          hint: "Your email",
+          hint: "Tu email",
           label: "Email",
           error: snapshot.error as String?,
           onChanged: bloc.changeEmail,
@@ -108,8 +119,8 @@ class _RegistrationScreenState extends State<RegistrationScreen>{
       builder: (context, snapshot) {
         return AppTextField(
           controller: _passwordController,
-          hint: "Your password",
-          label: "Password",
+          hint: "Tu contraseña",
+          label: "Contraseña",
           error: snapshot.error as String?,
           onChanged: bloc.changePassword,
           obscureText: true,
@@ -123,10 +134,10 @@ class _RegistrationScreenState extends State<RegistrationScreen>{
       stream: bloc.submitValid,
       builder: (context, snapshot){
         return AppButton(
-          color: snapshot.hasData && _emailController.text != "" && _passwordController.text != "" ? const Color.fromRGBO(179, 0, 51, 1.0): Colors.black54,
-          colorText: snapshot.hasData && _emailController.text != "" && _passwordController.text != "" ? Colors.white: Colors.white54,
-          name: 'Sign up',
-          onPressed: snapshot.hasData && _emailController.text != "" && _passwordController.text != "" ? ()async{
+          color: snapshot.hasData && _emailController.text != "" && _passwordController.text != "" && _role != "" ? const Color.fromRGBO(179, 0, 51, 1.0): Colors.black54,
+          colorText: snapshot.hasData && _emailController.text != "" && _passwordController.text != "" && _role != "" ? Colors.white: Colors.white54,
+          name: 'Registrarse',
+          onPressed: snapshot.hasData && _emailController.text != "" && _passwordController.text != "" && _role != "" ? ()async{
             _email = bloc.submitEmail();
             _password = bloc.submitPassword();
             try {
@@ -145,9 +156,13 @@ class _RegistrationScreenState extends State<RegistrationScreen>{
                 _errorMessage = auth.errorMessage;
               }
               setSpinnersStatus(false);
-            }
-            catch(e){
-              print(e);
+            }catch(e){
+              Fluttertoast.showToast(
+                msg: e.toString(),
+                fontSize: 20,
+                gravity: ToastGravity.CENTER,
+                backgroundColor: Colors.red[400]
+              );
             }
           } : null, 
         );
@@ -155,30 +170,38 @@ class _RegistrationScreenState extends State<RegistrationScreen>{
     );
   }
 
-  Widget _getStudentRole() {
-    return SwitchListTile(
-      title: const Text('Mentorizado (en 1º)',style: TextStyle(fontSize: 20.0),),
-      value: _isSelected,
-      onChanged: (bool value) {
-        setState(() {
-          _isSelected = value;
-        });
-      },
-      secondary: const Icon(Icons.school),
+  Widget _getRole(){
+    return Material(
+      color: const Color.fromRGBO(179, 0, 51, 1.0),
+      borderRadius: BorderRadius.circular(30.0),
+      elevation: 5.0,
+      child: SizedBox(
+        height: 50.0,
+        width: 50.0,
+        child: PopupMenuButton<Menu>(
+          onSelected: (Menu item) {
+            setState(() {
+              _role = item.name;
+            });
+          },
+          icon: Icon(Icons.adaptive.arrow_forward, color:Colors.white),
+          itemBuilder: (BuildContext context) => <PopupMenuEntry<Menu>>[
+            const PopupMenuItem<Menu>(
+              value: Menu.mentor,
+              child: Text('Mentor'),
+            ),
+            const PopupMenuItem<Menu>(
+              value: Menu.mentorizado,
+              child: Text('Mentorizado'),
+            ),
+            const PopupMenuItem<Menu>(
+              value: Menu.profesor,
+              child: Text('Profesor'),
+            ),
+          ]
+        )
+      )
     );
-  }
-
-  String _getFinalRole(String email){
-    if(email.endsWith('@uclm.es')){
-        return "profesor";
-    }
-    else{
-      if(_isSelected){
-        return "mentorizado";
-      }else{
-        return "mentor";
-      }
-    }
   }
 
   void _createUser(String email) async{
@@ -186,7 +209,7 @@ class _RegistrationScreenState extends State<RegistrationScreen>{
     var initialChallenge = snap.docs.firstWhere((element) => element.reference.toString() == "DocumentReference<Map<String, dynamic>>(challenges/6PAWfB7ZujBpZbdVyNeS)").reference;
     await FirestoreService().save(collectionName: "users", collectionValues: {
       'email': email,
-      'role': _getFinalRole(email),
+      'role': _role,
       'image': '',
       'degree':'',
       'status': 0,
@@ -206,6 +229,8 @@ class _RegistrationScreenState extends State<RegistrationScreen>{
       'decider': null,
       'title': '¡Hola mundo!',
       'creation_date': DateTime.now(),
+      'comentarios': {},
+      'likes': {},
       'description': 'Un nuevo usuario/a se ha unido al programa Menthor. ¡A por todas!'
     }); 
   }
