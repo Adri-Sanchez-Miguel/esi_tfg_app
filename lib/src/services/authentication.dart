@@ -63,7 +63,7 @@ class Authentiaction{
     void _mapErrorMessage(AuthenticationRequest authRequest, String code){
       switch(code){
         case '[firebase_auth/unknown] com.google.firebase.FirebaseException: An internal error has occurred. [ Connection reset ]':
-          authRequest.errorMessage = "Error de red, compruebe su conexión";
+          authRequest.errorMessage = "Error de red, un error ha ocurrido al conectar con la base de datos, inténtelo de nuevo";
           break;
         case '[firebase_auth/email-already-in-use] The email address is already in use by another account.':
           authRequest.errorMessage = "El usuario ya está registrado";
@@ -73,6 +73,9 @@ class Authentiaction{
           break;
         case '[firebase_auth/wrong-password] The password is invalid or the user does not have a password.':
           authRequest.errorMessage = "Contraseña incorrecta";
+          break;
+        case '[firebase_auth/network-request-failed] A network error (such as timeout, interrupted connection or unreachable host) has occurred.':
+          authRequest.errorMessage = "Error de red, no se ha encontrado ninguna conexión";
           break;
         default:
         authRequest.errorMessage = code;

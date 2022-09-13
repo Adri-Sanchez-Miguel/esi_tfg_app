@@ -73,7 +73,9 @@ class _HomeState extends State<Home> {
         DrawerHeader(
           child: Image.asset('images/menthor_logo.png', scale: 0.8,),
           ), 
-        Text(_user?["email"], style: const TextStyle(fontWeight: FontWeight.bold),)
+        Padding(padding: const EdgeInsets.all(20.0),
+        child: Text(_user?["email"], style: const TextStyle(fontSize: 20.0),)),
+        const Divider()
       ]
     );
     var info = SafeArea(

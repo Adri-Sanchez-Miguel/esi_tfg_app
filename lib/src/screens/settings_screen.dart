@@ -11,7 +11,7 @@ class Settings extends StatelessWidget {
         title: const Text("Configuración"),
       ),
       body: const Center(
-        child: Text("Configuración")
+        child: Text("Work in progress...")
         )
     );
   }

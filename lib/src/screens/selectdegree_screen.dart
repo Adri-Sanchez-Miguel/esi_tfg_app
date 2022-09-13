@@ -46,7 +46,7 @@ class _SelectDegreeState extends State<SelectDegree> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,    
             children:  <Widget>[
-              const Text("Elige tu equipo:", style: TextStyle(fontSize: 25.0, fontWeight: FontWeight.w700, color: Color.fromARGB(255, 180, 50, 87)),),
+              const Text("Elige tu titulación:", style: TextStyle(fontSize: 25.0, fontWeight: FontWeight.w700, color: Color.fromARGB(255, 180, 50, 87)),),
               const SizedBox(height: 10.0,), 
               _getNameDegree(),
               const SizedBox(height: 10.0,), 

@@ -1,3 +1,4 @@
+import 'package:esi_tfg_app/src/screens/new_challenge_screen.dart';
 import 'package:esi_tfg_app/src/screens/selectdegree_screen.dart';
 import 'package:esi_tfg_app/src/screens/selectteam_screen.dart';
 import 'package:flutter/material.dart';
@@ -22,11 +23,14 @@ Future<void> main() async {
   // Hacer ventanas para introducir retos y publicaciones y reclamarlos
   // Comprobar en iOS 
   // Testing
+  // Límite de caractéres y eliminar cometarios de una publicación
   // Comentar las clases y métodos
+  // Comprobar login HAY UN ERROR cuando cambias el user y ya es válido
   // Dejar las menos warnings posibles
   // Cambiar visibilidad para que pueda ser para mentores, profesores y mentorizados
   // Acordarse de que cuando se crea un reto se crea una publicación asociada
-  
+  // Animaciones (?)
+  // Hacer que no se pueda dar marcha atrás en el menú principal
   runApp(
     Provider(
       create: (context) => Bloc(),
@@ -49,7 +53,8 @@ Future<void> main() async {
           PublicationsScreen.routeName: (BuildContext context) => const PublicationsScreen(),
           Settings.routeName: (BuildContext context) => const Settings(),
           ReclamarLogro.routeName: (BuildContext context) => const ReclamarLogro(),
-          NuevoMensaje.routeName: (BuildContext context) => const NuevoMensaje(),
+          NuevoMensaje.routeName: (BuildContext context) => const NuevoMensaje(),          NuevoMensaje.routeName: (BuildContext context) => const NuevoMensaje(),
+          NuevoReto.routeName: (BuildContext context) => const NuevoReto(),
         },
       )
     )

@@ -84,7 +84,6 @@ class _SelectTeamState extends State<SelectTeam> {
         appBar: AppBar(
           automaticallyImplyLeading: false,
           title: const Text("Equipo"),
-          backgroundColor: const Color.fromARGB(255, 180, 50, 87),
         ),
         body: ModalProgressHUD(
           inAsyncCall: _showSpinner,

@@ -94,7 +94,7 @@ class _PublicationsScreenState extends State<PublicationsScreen> {
               )
             )
           ]
-        )        : snapshot.hasData ? Flexible(
+        ) : snapshot.hasData ? Flexible(
           child: RefreshIndicator(
             onRefresh: () async{
               setState((){
@@ -162,7 +162,7 @@ class _PublicationsScreenState extends State<PublicationsScreen> {
       ),
       subtitle: Text('\n$description'),
       onTap: (){
-        Navigator.push(context, MaterialPageRoute(builder: (context) => PublicationDetail(publication: publication)));
+        Navigator.push(context, MaterialPageRoute(builder: (context) => PublicationDetail(publication: publication, loggedInUser: loggedInUser,)));
       }
     );
   }

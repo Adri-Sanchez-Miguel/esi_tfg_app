@@ -11,16 +11,27 @@ class UserDetail extends StatelessWidget {
     return Scaffold(
         appBar: AppBar(
           title: const Text("User"),
-          backgroundColor: const Color.fromARGB(255, 180, 50, 87),
         ),
       body: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 15.0),
+        padding: const EdgeInsets.symmetric(horizontal: 25.0, vertical: 30.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            Center(child: Text(user!['email'])),
+            Center(child: Text(user!['email'], style: const TextStyle(color: Color.fromARGB(255, 180, 50, 87),fontSize: 25.0, fontWeight: FontWeight.w700)),),
+            const SizedBox(height: 25.0,), 
+            const Text("Mentor:", style: TextStyle(fontSize: 25.0, fontWeight: FontWeight.w700),),
+            const SizedBox(height: 15.0,), 
+            const Text("Miembro desde:", style: TextStyle(fontSize: 25.0, fontWeight: FontWeight.w700),),
+            Text(user!['sign_up_date'].toDate().toString(), style: const TextStyle(fontSize: 17.0, fontWeight: FontWeight.w500),),
+            const SizedBox(height: 15.0,), 
+            const Text("Rol:", style: TextStyle(fontSize: 25.0, fontWeight: FontWeight.w700),),
+            Text(user!['role'], style: const TextStyle(fontSize: 17.0, fontWeight: FontWeight.w500),),
+            const SizedBox(height: 15.0,),
+            const Text("Equipo/s:", style: TextStyle(fontSize: 25.0, fontWeight: FontWeight.w700),),
             _getList("teams", true),
+            const SizedBox(height: 15.0,), 
+            const Text("Retos completados:", style: TextStyle(fontSize: 25.0, fontWeight: FontWeight.w700),),
             _getList("challenges", false)
           ]
         )

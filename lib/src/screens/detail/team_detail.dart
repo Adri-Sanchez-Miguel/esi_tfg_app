@@ -9,43 +9,65 @@ class TeamDetail extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     String name = team!['name'].toString();
+    DocumentReference? mentor;
+
+    if(team!['mentor'] != null){
+      mentor = team!['mentor'];
+    }
     return Scaffold(
         appBar: AppBar(
           title: const Text("Team"),
-          backgroundColor: const Color.fromARGB(255, 180, 50, 87),
         ),
       body: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 15.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            Center(child: Text("Equipo $name")),
-            _getList("users"),
-          ]
-        )
+        padding: const EdgeInsets.symmetric(horizontal: 25.0, vertical: 30.0),
+        child: _getList("users", name, mentor),
       ),
     );
   }
 
-  Widget _getList(String collectionName){
+  Widget _getList(String collectionName, String name, DocumentReference? mentor){
     return FutureBuilder<QuerySnapshot<Map<String, dynamic>>>(
       future: FirestoreService().getMessage(collectionName: collectionName),
       builder: (context, snapshot){
         if(snapshot.hasData){
           var messages = snapshot.data!.docs;
-          return Flexible(
-            child: ListView(
-              children: _getStudentItems(messages),
-            )
+          return Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              Center(child: Text("Equipo $name", 
+                style: const TextStyle(color: Color.fromARGB(255, 180, 50, 87), fontSize: 35.0, fontWeight: FontWeight.bold),),),
+              const SizedBox(height: 30.0,), 
+              const Text("Profesor/a:", style: TextStyle(fontSize: 25.0, fontWeight: FontWeight.w700),),
+              _getTeacherItem(messages, team!["teacher"]),
+              const SizedBox(height: 30.0,), 
+              const Text("Mentor:", style: TextStyle(fontSize: 25.0, fontWeight: FontWeight.w700),),
+              team!['mentor'] != null ? _getMentorItem(messages, mentor) : const Text("Aún no hay mentor"),
+              const SizedBox(height: 40.0,),
+              const Text("Mentorizazdos:", style: TextStyle(fontSize: 25.0, fontWeight: FontWeight.w700),),
+              Flexible(
+                child: ListView(
+                  children: _getStudentItems(messages),
+                )
+              )
+            ]
           );
+
         }else{
-          return Container(
-            height: 0.0,
-          );
+          return const Text("No hay alumnos en este equipo");
         }
       },
     );
+  }
+
+  Widget _getTeacherItem(List<QueryDocumentSnapshot<Map<String, dynamic>>> messages, DocumentReference? teacher) {
+    var selectedTeacher = messages.firstWhere((element) => element.reference == teacher);
+    return Text(selectedTeacher['email'], style: const TextStyle(fontSize: 17.0, fontWeight: FontWeight.w500),);
+  }
+
+  Widget _getMentorItem(List<QueryDocumentSnapshot<Map<String, dynamic>>> messages, DocumentReference? mentor) {
+    var selectedMentor = messages.firstWhere((element) => element.reference == mentor);
+    return Text(selectedMentor['email'], style: const TextStyle(fontSize: 17.0, fontWeight: FontWeight.w500),);
   }
 
   List<Widget> _getStudentItems(dynamic messages){
@@ -54,8 +76,7 @@ class TeamDetail extends StatelessWidget {
     Iterable<dynamic> students = studentsMap.values;
     for(var student in students){
       var selectedStudent = messages.firstWhere((element) => element.reference == student);
-      var name = selectedStudent['email'];
-      messageItems.add(Text("$name"));
+      messageItems.add(Text(selectedStudent['email'], style: const TextStyle(fontSize: 17.0, fontWeight: FontWeight.w500),));
     }
     return messageItems;
   }

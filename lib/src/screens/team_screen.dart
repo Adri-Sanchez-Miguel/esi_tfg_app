@@ -13,7 +13,6 @@ class Team extends StatelessWidget {
     return Scaffold(
         appBar: AppBar(
           title: const Text("Equipo"),
-          backgroundColor: const Color.fromARGB(255, 180, 50, 87),
         ),
       body: Container(
         padding: const EdgeInsets.symmetric(horizontal: 15.0),

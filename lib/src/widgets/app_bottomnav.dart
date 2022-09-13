@@ -39,17 +39,41 @@ class _BottomNavState extends State<BottomNav> {
           width: 60.0,
           child: PopupMenuButton(
             icon: const Icon(Icons.add, color:Colors.white, size: 40.0,),
-            itemBuilder: (context) => <PopupMenuEntry<Widget>>[
-              PopupMenuItem(child: const Center(child:Text("Nuevo mensaje")), onTap: (){
-                Navigator.pushNamed(context, "/message");
-              },),
-              PopupMenuItem(child: const Center(child:Text("Reclamar logro")), onTap: (){
-                Navigator.pushNamed(context, "/newchallenge");
-              },),
+            itemBuilder: (itemContext) => <PopupMenuEntry<Widget>>[
+              PopupMenuItem(
+                child: Center(
+                  child:TextButton(
+                    child: const Text("Nuevo mensaje", style: TextStyle(color: Colors.black87, fontSize: 17.0)), 
+                    onPressed: (){
+                      Navigator.pushNamed(context, "/message");
+                    },
+                  )
+                ), 
+                onTap: (){},
+              ),
+              PopupMenuItem(
+                child: Center(
+                  child:TextButton(
+                    child: const Text("Crear logro", style: TextStyle(color: Colors.black87, fontSize: 17.0)), 
+                    onPressed: (){
+                      Navigator.pushNamed(context, "/newchallenge");
+                    },
+                  )
+                ), 
+                onTap: (){},
+              ),
               const PopupMenuDivider(),
-              PopupMenuItem(child: const Center(child:Text("Crear logro")), onTap: (){
-                Navigator.pushNamed(context, "/achieve");
-              },),
+              PopupMenuItem(
+                child: Center(
+                  child:TextButton(
+                    child: const Text("Reclamar logro", style: TextStyle(color: Colors.black87, fontSize: 17.0)), 
+                    onPressed: (){
+                      Navigator.pushNamed(context, "/achieve");
+                    },
+                  )
+                ), 
+                onTap: (){},
+              ),
             ],
           )
         )
