@@ -184,8 +184,6 @@ class _UsersScreenState extends State<UsersScreen> {
   }
 
   Widget _getItems(BuildContext context, QueryDocumentSnapshot<Map<String, dynamic>> user, String usersSearched){
-    // Si la visibilidad es todos, decider es null, 
-    // si es equipo, la referencia del equipo y si es carrera el string de la carrera
     if(user['email'] != loggedInUser.email){
       if(usersSearched == ""){
         return _getAppCard(const Icon(Icons.perm_identity_outlined),user, Colors.black);

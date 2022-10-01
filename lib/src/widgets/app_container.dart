@@ -1,0 +1,31 @@
+import 'package:flutter/material.dart';
+
+class ContainTextField extends StatelessWidget {
+  final TextEditingController controller;
+  final String hint;
+  final String label;
+  final int maxLines;
+  const ContainTextField({Key? key, required this.maxLines, required this.hint, required this.label, required this.controller}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(5),
+        border: Border.all(color: Colors.grey)),
+      margin: const EdgeInsets.symmetric(horizontal: 15.0),
+      child: TextFormField(
+        maxLines: maxLines,
+        controller: controller,
+        validator: ((value) => value!.isEmpty ? "Rellene el campo" : null),
+        style: const TextStyle(fontSize: 20.0),
+        decoration: InputDecoration(
+          contentPadding:
+            const EdgeInsets.symmetric(horizontal: 5.0),
+          hintText: hint,
+          labelText: label
+        ),
+      ),
+    );
+  }
+}

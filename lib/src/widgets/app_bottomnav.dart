@@ -1,10 +1,14 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:esi_tfg_app/src/screens/challenge_screen.dart';
+import 'package:esi_tfg_app/src/screens/new_message_screen.dart';
 import 'package:esi_tfg_app/src/screens/users_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:esi_tfg_app/src/screens/publication_screen.dart';
 
 class BottomNav extends StatefulWidget {
-  const BottomNav({Key? key}) : super(key: key);
+  final QueryDocumentSnapshot<Map<String, dynamic>>? user;
+  
+  const BottomNav({Key? key, required this.user}) : super(key: key);
 
   @override
   State<BottomNav> createState() => _BottomNavState();
@@ -40,12 +44,13 @@ class _BottomNavState extends State<BottomNav> {
           child: PopupMenuButton(
             icon: const Icon(Icons.add, color:Colors.white, size: 40.0,),
             itemBuilder: (itemContext) => <PopupMenuEntry<Widget>>[
+              // hacer esto un método
               PopupMenuItem(
                 child: Center(
                   child:TextButton(
                     child: const Text("Nuevo mensaje", style: TextStyle(color: Colors.black87, fontSize: 17.0)), 
                     onPressed: (){
-                      Navigator.pushNamed(context, "/message");
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => NuevoMensaje(user: widget.user)));
                     },
                   )
                 ), 

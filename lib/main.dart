@@ -9,7 +9,6 @@ import 'package:esi_tfg_app/src/screens/login_screen.dart';
 import 'package:esi_tfg_app/src/screens/reclamar_screen.dart';
 import 'package:esi_tfg_app/src/screens/registration_screen.dart';
 import 'package:esi_tfg_app/src/screens/settings_screen.dart';
-import 'package:esi_tfg_app/src/screens/new_message_screen.dart';
 import 'package:esi_tfg_app/src/screens/welcome_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
@@ -17,13 +16,10 @@ import 'firebase_options.dart';
 
 Future<void> main() async {
   // Tips: CalendarDate (tip 28 -> 35 Flutter tips that will change your life)
-  // Comentario en publicacion (ver si hacer como respuesta y se almacenan en la publicación) 
   // Dejar bonitas ventanas
   // Buscar lo de las imágenes y el QR
-  // Hacer ventanas para introducir retos y publicaciones y reclamarlos
-  // Comprobar en iOS 
   // Testing
-  // Límite de caractéres y eliminar cometarios de una publicación
+  // Límite de caractéres en cometarios y publicaciones
   // Comentar las clases y métodos
   // Comprobar login HAY UN ERROR cuando cambias el user y ya es válido
   // Dejar las menos warnings posibles
@@ -31,6 +27,7 @@ Future<void> main() async {
   // Acordarse de que cuando se crea un reto se crea una publicación asociada
   // Animaciones (?)
   // Hacer que no se pueda dar marcha atrás en el menú principal
+  // Añadir foto en la publicación y al completar reto
   runApp(
     Provider(
       create: (context) => Bloc(),
@@ -53,7 +50,6 @@ Future<void> main() async {
           PublicationsScreen.routeName: (BuildContext context) => const PublicationsScreen(),
           Settings.routeName: (BuildContext context) => const Settings(),
           ReclamarLogro.routeName: (BuildContext context) => const ReclamarLogro(),
-          NuevoMensaje.routeName: (BuildContext context) => const NuevoMensaje(),          NuevoMensaje.routeName: (BuildContext context) => const NuevoMensaje(),
           NuevoReto.routeName: (BuildContext context) => const NuevoReto(),
         },
       )

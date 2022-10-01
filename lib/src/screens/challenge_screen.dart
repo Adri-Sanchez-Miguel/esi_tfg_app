@@ -163,9 +163,10 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
       QueryDocumentSnapshot<Map<String, dynamic>> user = 
         _users!.docs.firstWhere((element) => element["email"] == loggedInUser.email);
       Map<String, dynamic> completed = user['challenges_completed'];
+      // Ver vídeo para cambiar esta atrocidad de limpieza de código que hay aquí
       if(!completed.containsValue(challenge.reference)){
-        if(challenge['degree'] == user['degree'] || challenge['degree']=="all"){
-          if(challenge['users_visibility'] == user['role'] || challenge['users_visibility']=="all"){
+        if(challenge['degree'] == user['degree'] || challenge['degree']=="todos"){
+          if(challenge['users_visibility'] == user['role'] || challenge['users_visibility']=="todos"){
             switch(challenge['level']){
               case 1:
                 return _getAppCard(Image.asset('images/bronze.png'), challenge, const Color.fromARGB(255, 114, 64, 7));

@@ -38,11 +38,15 @@ dependencies:
   firebase_core: ^1.18.0
   cloud_firestore: ^3.1.17
   firebase_auth: ^3.3.19
-  modal_progress_hud_nsn: ^0.2.1
+  modal_progress_hud_nsn: ^0.3.0
   rxdart: ^0.27.4
   provider: ^6.0.3
   animated_text_kit: ^4.2.2
   fluttertoast: ^8.0.9
+  qr_flutter: ^4.0.0
+  qr_code_scanner: ^1.0.1
+  image_picker: ^0.8.5+3
+  firebase_storage: ^10.3.9
 
 dev_dependencies:
   flutter_test:

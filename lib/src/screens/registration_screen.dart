@@ -20,7 +20,7 @@ class RegistrationScreen extends StatefulWidget {
 }
 
 class _RegistrationScreenState extends State<RegistrationScreen>{
-  String _role = "", _email = "", _password = "", _errorMessage = "";
+  String _role = "", _showString = "", _email = "", _password = "", _errorMessage = "";
   late FocusNode _focusNode;
   bool _showSpinner = false;   
   final GlobalKey<FormState> _formkey = GlobalKey<FormState>();
@@ -78,7 +78,7 @@ class _RegistrationScreenState extends State<RegistrationScreen>{
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
                       Padding(padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                      child: Text('ROL: $_role', style: const TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),),),
+                      child: Text('ROL: $_showString', style: const TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),),),
                       //_getStudentRole(),
                       _getRole(),
                       ]
@@ -182,6 +182,7 @@ class _RegistrationScreenState extends State<RegistrationScreen>{
           onSelected: (Menu item) {
             setState(() {
               _role = item.name;
+              _showString = item.name.toUpperCase();
             });
           },
           icon: Icon(Icons.adaptive.arrow_forward, color:Colors.white),
@@ -220,17 +221,20 @@ class _RegistrationScreenState extends State<RegistrationScreen>{
   }
 
   void _createInitialPublication(String email) async{
+    // Si la visibilidad es todos, decider es '', 
+    // si es equipo, la referencia del equipo y si es carrera el string de la carrera
     var snap = await FirestoreService().getMessage(collectionName: "challenges");
     var challenge = snap.docs.firstWhere((element) => element.reference.toString() == "DocumentReference<Map<String, dynamic>>(challenges/6PAWfB7ZujBpZbdVyNeS)").reference;
     await FirestoreService().save(collectionName: "publications", collectionValues: {
       'challenge': challenge,
       'user': email,
-      'visibility': 'all',
-      'decider': null,
+      'visibility': 'todos',
+      'decider': "",
       'title': '¡Hola mundo!',
       'creation_date': DateTime.now(),
       'comentarios': {},
       'likes': {},
+      'photo': "",
       'description': 'Un nuevo usuario/a se ha unido al programa Menthor. ¡A por todas!'
     }); 
   }

@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:esi_tfg_app/src/services/firestore_service.dart';
+import 'package:esi_tfg_app/src/services/storage_service.dart';
 import 'package:esi_tfg_app/src/widgets/app_card.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
@@ -19,6 +20,8 @@ class PublicationDetail extends StatefulWidget {
 class _PublicationDetailState extends State<PublicationDetail>{
   late TextEditingController _answerController;
   final GlobalKey<FormState> _formkey = GlobalKey<FormState>();
+  final Storage storage = Storage();
+  File? imageFile;
 
   @override
   void initState() {
@@ -73,8 +76,11 @@ class _PublicationDetailState extends State<PublicationDetail>{
               ]
             )
           ),
+          widget.publication["photo"] != "" ? 
+          _getPhoto(widget.publication["photo"])
+          : Container (height: 0.0), 
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 25.0),
+            padding: const EdgeInsets.symmetric(horizontal: 25.0, vertical: 25.0),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -120,6 +126,42 @@ class _PublicationDetailState extends State<PublicationDetail>{
           ),
         ),
       ),
+    );
+  }
+
+  Widget _getPhoto(String name){
+    return FutureBuilder(
+      future: storage.photoURL(name),
+      builder: (context, AsyncSnapshot<String> snapshot){
+        return snapshot.connectionState == ConnectionState.waiting ? 
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,    
+          children:<Widget>[
+            Container(
+              padding: const EdgeInsets.only(top: 100.0),
+              child: Center( 
+                child: Platform.isAndroid ? 
+                const CircularProgressIndicator() 
+                : const CupertinoActivityIndicator()
+              )
+            )
+          ]
+        ) : snapshot.hasData ? Flexible(
+          child: RefreshIndicator(
+            onRefresh: () async{},
+            child: Center(
+              child:SizedBox (
+                child: Image.network(
+                  snapshot.data!,
+                  fit: BoxFit.cover
+                ),
+              )
+            )
+          )
+        )
+        : Container(height: 0.0,);
+      },
     );
   }
 
@@ -226,7 +268,7 @@ class _PublicationDetailState extends State<PublicationDetail>{
 
     return AppCard(
       trailing: widget.loggedInUser.email == username || widget.loggedInUser.email == widget.publication['user'] ?  PopupMenuButton(
-        tooltip: "Delete the comment",
+        tooltip: "Borra el comentario",
         icon: const Icon(Icons.more_vert_rounded),
         itemBuilder: (context) => <PopupMenuEntry<Widget>>[
           widget.loggedInUser.email == username || widget.loggedInUser.email == widget.publication['user'] ? 

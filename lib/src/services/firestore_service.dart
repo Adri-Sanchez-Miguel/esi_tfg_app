@@ -8,10 +8,17 @@ class FirestoreService{
   }
 
   Future<void> update({required DocumentReference document, required Map<String, dynamic> collectionValues}) async {
-      _fireStore.runTransaction((transaction) async{
-        DocumentSnapshot freshSnap = await transaction.get(document);
-        await transaction.update(freshSnap.reference, collectionValues);
-      });
+    _fireStore.runTransaction((transaction) async{
+      DocumentSnapshot freshSnap = await transaction.get(document);
+      await transaction.update(freshSnap.reference, collectionValues);
+    });
+  }
+
+  Future<void> delete({required DocumentReference document}) async {
+    _fireStore.runTransaction((transaction) async{
+      DocumentSnapshot freshSnap = await transaction.get(document);
+      await transaction.delete(freshSnap.reference);
+    });
   }
 
   Future<QuerySnapshot<Map<String, dynamic>>> getMessage({required String collectionName}) async {

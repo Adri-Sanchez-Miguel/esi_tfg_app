@@ -16,7 +16,7 @@ class AppCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: const EdgeInsets.all(5.0),
+      margin: const EdgeInsets.symmetric(horizontal: 5.0, vertical: 3),
       color: color,
       elevation: 5,
       shape: RoundedRectangleBorder(
@@ -27,13 +27,13 @@ class AppCard extends StatelessWidget {
         borderRadius: const BorderRadius.all(Radius.circular(12.0)),
       ),
       child: ListTile(
-        minVerticalPadding: 10.0,
+        minVerticalPadding: 8.0,
         title: Row(
           children: <Widget>[
             Expanded(
               child: ListTile(
                 trailing: trailing,
-                contentPadding: const EdgeInsets.all(5.0),
+                contentPadding: const EdgeInsets.all(4.0),
                 selectedColor: Colors.black,
                 iconColor: iconColor,
                 textColor: textColor,

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:esi_tfg_app/src/screens/selectdegree_screen.dart';
 import 'package:esi_tfg_app/src/screens/selectteam_screen.dart';
@@ -6,6 +8,7 @@ import 'package:esi_tfg_app/src/screens/team_screen.dart';
 import 'package:esi_tfg_app/src/screens/detail/user_detail.dart';
 import 'package:esi_tfg_app/src/services/firestore_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:esi_tfg_app/src/services/authentication.dart';
 import 'package:esi_tfg_app/src/widgets/app_bottomnav.dart';
@@ -187,7 +190,7 @@ class _HomeState extends State<Home> {
             drawer: Drawer(
               child: getDrawer(context),
             ),
-            body: const BottomNav(),
+            body: BottomNav(user: _user,),
           );
         }else{
           return const SelectTeam();
@@ -197,18 +200,17 @@ class _HomeState extends State<Home> {
       }
     }else{
       return Scaffold(
-        body: Column(
+        body: Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.stretch, 
-          children: <Widget>[
-            Center(
-               child: AnimatedTextKit(animatedTexts: [
-                RotateAnimatedText("¡Hola de nuevo!", 
-                duration: const Duration(milliseconds:  900),
-                textStyle: const TextStyle(fontSize: 50.0, fontWeight: FontWeight.bold), 
-                textAlign: TextAlign.start,
-                )
-              ])
+          crossAxisAlignment: CrossAxisAlignment.center,    
+          children:<Widget>[
+            Container(
+              padding: const EdgeInsets.only(top: 100.0),
+              child: Center( 
+                child: Platform.isAndroid ? 
+                const CircularProgressIndicator() 
+                : const CupertinoActivityIndicator()
+              )
             )
           ]
         )

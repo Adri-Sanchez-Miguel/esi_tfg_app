@@ -127,24 +127,38 @@ class _PublicationsScreenState extends State<PublicationsScreen> {
     Color background = Colors.white;
     Color decoration = colorDecoration;
     String title = publication['title'];
+    Widget? trailing;
     String description = publication['description'];
     if (username == loggedInUser.email){
       username = "Tú";
-      background = const Color.fromARGB(255, 180, 50, 87);
+      background = const Color.fromARGB(255, 209, 73, 111);
       decoration = Colors.white;
+      trailing = PopupMenuButton(
+        tooltip: "Borra la publicación",
+        icon: const Icon(Icons.more_vert_rounded),
+        itemBuilder: (context) => <PopupMenuEntry<Widget>>[
+          PopupMenuItem(child: const Center(child:Text("Borrar publicación")), onTap: (){
+            setState(() {
+              _deletePublication(publication);
+            });
+          },) 
+        ],
+      );
     }
-    return AppCard(
-      trailing: IconButton(
+    else{
+      trailing = IconButton(
         tooltip: "Like the publication",
         icon: liked ? const Icon(Icons.favorite) : const Icon(Icons.favorite_border_rounded),
-        color: const Color.fromARGB(255, 180, 50, 87), 
+        color:  const Color.fromARGB(255, 180, 50, 87),
         onPressed: () {
           setState(() {
-            // liked = !liked;
             _changeLike(liked, publication, likes);
           });
         },
-      ),
+      );
+    }
+    return AppCard(
+      trailing: trailing,
       color: background,
       radius: 3.0,
       borderColor: Colors.black,
@@ -165,6 +179,11 @@ class _PublicationsScreenState extends State<PublicationsScreen> {
         Navigator.push(context, MaterialPageRoute(builder: (context) => PublicationDetail(publication: publication, loggedInUser: loggedInUser,)));
       }
     );
+  }
+
+  void _deletePublication( QueryDocumentSnapshot<Map<String, dynamic>> publication) async{
+    await FirestoreService().delete(document: publication.reference);
+            
   }
 
   void _changeLike(bool liked, QueryDocumentSnapshot<Map<String, dynamic>> publication, Map<String, dynamic> likes) async{
