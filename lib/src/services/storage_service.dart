@@ -26,4 +26,8 @@ class Storage{
     
     return downloadURl;
   }
+
+  Future<void> deleteURL(String photoName) async{
+    await storage.ref(photoName).delete();
+  }
 }

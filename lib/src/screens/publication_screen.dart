@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:esi_tfg_app/src/screens/detail/publication_detail.dart';
+import 'package:esi_tfg_app/src/services/storage_service.dart';
 import 'package:esi_tfg_app/src/widgets/app_card.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
@@ -12,8 +13,9 @@ import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 
 class PublicationsScreen extends StatefulWidget {
   static const String routeName = '/publications';
-
-  const PublicationsScreen({Key? key}) : super(key: key);
+  final QueryDocumentSnapshot<Map<String, dynamic>>? user;
+  
+  const PublicationsScreen({Key? key, this.user}) : super(key: key);
 
   @override
   State<PublicationsScreen> createState() => _PublicationsScreenState();
@@ -23,6 +25,7 @@ class _PublicationsScreenState extends State<PublicationsScreen> {
   late User loggedInUser;
   QuerySnapshot<Map<String, dynamic>>? _users;
   bool _showSpinner = false; 
+  final Storage storage = Storage();
 
   @override
   void initState() {
@@ -32,7 +35,7 @@ class _PublicationsScreenState extends State<PublicationsScreen> {
 
   void _getRightUser() async {
     try{
-    var user = await Authentiaction().getRightUser();
+    var user = await Authentication().getRightUser();
     _users = await FirestoreService().getMessage(collectionName: "users");
     if (user != null){
       setState(() {
@@ -71,7 +74,6 @@ class _PublicationsScreenState extends State<PublicationsScreen> {
         )
       );
     }else{
-      // Retocar el texto que indique que se está cargando
       return const Text("Cargando...");
     }
   }
@@ -116,9 +118,61 @@ class _PublicationsScreenState extends State<PublicationsScreen> {
   }
 
   Future<QuerySnapshot<Map<String, dynamic>>>? _futurePublications() async{
-    await Future.delayed(const Duration(milliseconds: 500));
+    await Future.delayed(const Duration(milliseconds: 1000));
     return await FirestoreService().getOrderedMessage(field: "creation_date", collectionName: "publications");
   }
+
+  Widget _getItems(BuildContext context, QueryDocumentSnapshot<Map<String, dynamic>> publication){
+    var user = _users!.docs.firstWhere((element) => element["email"] == loggedInUser.email);
+    var publicationUser = _users!.docs.firstWhere((element) => element["email"] == publication["user"]);
+    Widget? icon = const Icon(Icons.group);
+    if(publicationUser["image"] != ""){
+      icon = _getPhoto(publicationUser["image"], 300.0);
+    }else{
+      icon = const Icon(Icons.group);
+    }
+    if( publication["degree"] != "todos" && publication["degree"] != user['degree']){
+      return Container(
+        height: 0.0,
+      );
+    }
+    switch(publication['visibility']){
+      case 'team':
+        if(publication['decider'] == user['team']){
+          return _getAppCard(icon, publication, Colors.teal);
+        }else{
+          return Container(
+            height: 0.0,
+          );
+        }
+      case 'mentor':
+        if(user['role'] == "mentor"){
+          return _getAppCard(icon, publication, Colors.indigo);
+        }else{
+          return Container(
+            height: 0.0,
+          );
+        }
+      case 'profesor':
+        if(user['role'] == "profesor"){
+          return _getAppCard(icon, publication, Colors.indigo);
+        }else{
+          return Container(
+            height: 0.0,
+          );
+        }
+      case 'mentorizado':
+        if(user['role'] == "mentorizado"){
+          return _getAppCard(icon, publication, Colors.indigo);
+        }else{
+          return Container(
+            height: 0.0,
+          );
+        }
+      default:
+        return _getAppCard(icon,publication, Colors.black);
+    }
+  }  
 
   Widget _getAppCard(Widget? icon, QueryDocumentSnapshot<Map<String, dynamic>> publication, Color colorDecoration){
     String username = publication['user'];
@@ -128,13 +182,17 @@ class _PublicationsScreenState extends State<PublicationsScreen> {
     Color decoration = colorDecoration;
     String title = publication['title'];
     Widget? trailing;
+    Widget? photo = Container(height: 0.0);
     String description = publication['description'];
+    if(publication["photo"] != ""){
+      photo = _getPhoto(publication["photo"], 200.0);
+    }
     if (username == loggedInUser.email){
       username = "Tú";
       background = const Color.fromARGB(255, 209, 73, 111);
       decoration = Colors.white;
       trailing = PopupMenuButton(
-        tooltip: "Borra la publicación",
+        tooltip: "Borrar la publicación",
         icon: const Icon(Icons.more_vert_rounded),
         itemBuilder: (context) => <PopupMenuEntry<Widget>>[
           PopupMenuItem(child: const Center(child:Text("Borrar publicación")), onTap: (){
@@ -146,16 +204,45 @@ class _PublicationsScreenState extends State<PublicationsScreen> {
       );
     }
     else{
-      trailing = IconButton(
-        tooltip: "Like the publication",
-        icon: liked ? const Icon(Icons.favorite) : const Icon(Icons.favorite_border_rounded),
-        color:  const Color.fromARGB(255, 180, 50, 87),
-        onPressed: () {
-          setState(() {
-            _changeLike(liked, publication, likes);
-          });
-        },
-      );
+      if(widget.user!["role"] == "profesor"){
+        trailing = PopupMenuButton(
+          tooltip: "Borrar la publicación",
+          icon: const Icon(Icons.more_vert_rounded),
+          itemBuilder: (context) => <PopupMenuEntry<Widget>>[
+            PopupMenuItem(
+              child: const Center(
+                child:Text("Borrar publicación")
+              ), 
+              onTap: (){
+                setState(() {
+                  _deletePublication(publication);
+                });
+              },
+            ), 
+            PopupMenuItem(
+              child:  Center(
+                child: liked ? const Text("Dar like") : const Text("Quitar like")
+              ), 
+              onTap: () {
+                setState(() {
+                  _changeLike(liked, publication, likes);
+                });
+              },    
+            ), 
+          ],
+        );
+      }else{
+        trailing = IconButton(
+          tooltip: "Botón de me gusta la publicación",
+          icon: liked ? const Icon(Icons.favorite) : const Icon(Icons.favorite_border_rounded),
+          color:  const Color.fromARGB(255, 180, 50, 87),
+          onPressed: () {
+            setState(() {
+              _changeLike(liked, publication, likes);
+            });
+          },
+        );
+      }
     }
     return AppCard(
       trailing: trailing,
@@ -165,6 +252,7 @@ class _PublicationsScreenState extends State<PublicationsScreen> {
       iconColor: decoration,
       textColor: decoration,
       leading: icon,
+      photo: photo,
       title: Text.rich(
         TextSpan(
           text: '', 
@@ -182,6 +270,9 @@ class _PublicationsScreenState extends State<PublicationsScreen> {
   }
 
   void _deletePublication( QueryDocumentSnapshot<Map<String, dynamic>> publication) async{
+    if(publication["photo"] != ""){
+      storage.deleteURL(publication["photo"]);
+    }
     await FirestoreService().delete(document: publication.reference);
             
   }
@@ -204,52 +295,43 @@ class _PublicationsScreenState extends State<PublicationsScreen> {
     }
   }
 
-
-  Widget _getItems(BuildContext context, QueryDocumentSnapshot<Map<String, dynamic>> publication){
-    var user = _users!.docs.firstWhere((element) => element["email"] == loggedInUser.email);
-    switch(publication['visibility']){
-      case 'team':
-        if(publication['decider'] == user['team']){
-          return _getAppCard(const Icon(Icons.work), publication, Colors.teal);
-        }else{
-          return Container(
-            height: 0.0,
-          );
-        }
-      case 'degree':
-        if(publication['decider'] == user['degree']){
-          return _getAppCard(const Icon(Icons.auto_stories), publication, Colors.purple);
-        }else{
-          return Container(
-            height: 0.0,
-          );
-        }
-      case 'mentor':
-        if(user['role'] == "mentor"){
-          return _getAppCard(const Icon(Icons.group), publication, Colors.indigo);
-        }else{
-          return Container(
-            height: 0.0,
-          );
-        }
-      case 'profesor':
-        if(user['role'] == "profesor"){
-          return _getAppCard(const Icon(Icons.group), publication, Colors.indigo);
-        }else{
-          return Container(
-            height: 0.0,
-          );
-        }
-      case 'mentorizado':
-        if(user['role'] == "mentorizado"){
-          return _getAppCard(const Icon(Icons.group), publication, Colors.indigo);
-        }else{
-          return Container(
-            height: 0.0,
-          );
-        }
-      default:
-        return _getAppCard(const Icon(Icons.task_alt_rounded),publication, Colors.black);
-    }
-  }  
+  Widget _getPhoto(String name, double height){
+    return FutureBuilder(
+      future: storage.photoURL(name),
+      builder: (context, AsyncSnapshot<String> snapshot){
+        return snapshot.connectionState == ConnectionState.waiting ? 
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,    
+          children:<Widget>[
+            Container(
+              padding: const EdgeInsets.only(top: 100.0),
+              child: Center( 
+                child: Platform.isAndroid ? 
+                const CircularProgressIndicator() 
+                : const CupertinoActivityIndicator()
+              )
+            )
+          ]
+        ) : snapshot.hasData ? Center(
+            child:Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(vertical: 10.0),
+                child: SizedBox (
+                  height: height,
+                  child: Image.network(
+                    snapshot.data!,
+                    fit: BoxFit.cover
+                  ),
+                )
+              )
+            ]
+          )
+        )
+        : Container(height: 0.0,);
+      },
+    );
+  }
 }

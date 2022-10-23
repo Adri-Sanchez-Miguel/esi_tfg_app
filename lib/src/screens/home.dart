@@ -1,18 +1,20 @@
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:esi_tfg_app/src/screens/detail/photo_detail.dart';
 import 'package:esi_tfg_app/src/screens/selectdegree_screen.dart';
 import 'package:esi_tfg_app/src/screens/selectteam_screen.dart';
 import 'package:esi_tfg_app/src/screens/detail/team_detail.dart';
+import 'package:esi_tfg_app/src/screens/settings_screen.dart';
 import 'package:esi_tfg_app/src/screens/team_screen.dart';
 import 'package:esi_tfg_app/src/screens/detail/user_detail.dart';
+import 'package:esi_tfg_app/src/screens/welcome_screen.dart';
 import 'package:esi_tfg_app/src/services/firestore_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:esi_tfg_app/src/services/authentication.dart';
 import 'package:esi_tfg_app/src/widgets/app_bottomnav.dart';
-import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 class Home extends StatefulWidget {
@@ -28,7 +30,6 @@ class _HomeState extends State<Home> {
   QueryDocumentSnapshot<Map<String, dynamic>>? _user;
   QueryDocumentSnapshot<Map<String, dynamic>>? _team;
   QueryDocumentSnapshot<Map<String, dynamic>>? _tutor;
-  Iterable<dynamic>? _teamsIterable;
 
   @override
   void initState() {
@@ -38,19 +39,26 @@ class _HomeState extends State<Home> {
 
   void _getEmail() async {
     try{
-      var user = await Authentiaction().getRightUser();
-      await Future.delayed(const Duration(milliseconds: 1500));
+      await Future.delayed(const Duration(milliseconds: 2000));
+      var user = await Authentication().getRightUser();
       var snap = await FirestoreService().getMessage(collectionName: "users");
-      if (user != null && snap != null){
+      if (user != null){
         setState(() {
           loggedInUser = user;
           _user = snap.docs.firstWhere((element) => element["email"] == user.email);
         });
+        if(!_user!["verified"]){
+          await FirestoreService().update(document: _user!.reference, collectionValues: {
+            'verified': true
+          });  
+          await Future.delayed(const Duration(milliseconds: 100)).then((_) {  
+            Navigator.pushNamed(context, "/introduccion");
+          });
+        }
         var teams = await FirestoreService().getMessage(collectionName: "teams");
         setState(() {
           Map<String, dynamic> teamsMap = _user!['team'];
           if(teamsMap.isNotEmpty){
-            _teamsIterable = teamsMap.values;
             if(_user!['role']!= "profesor"){
               _team = teams.docs.firstWhere((element) => element.reference == teamsMap.values.first);
               _tutor = snap.docs.firstWhere((element) => element.reference == _team!['teacher']);
@@ -117,7 +125,7 @@ class _HomeState extends State<Home> {
         title: Text(description),
         onTap: (){          
           Navigator.pop(context);
-          Navigator.pushNamed(context, route);
+          Navigator.push(context, MaterialPageRoute(builder: (context) => SettingsScreen(user: _user)));
         },
       );
     }
@@ -153,9 +161,9 @@ class _HomeState extends State<Home> {
         leading: icon,
         title: Text(description),
         onTap: (){
-          Authentiaction().signOut();
-          Navigator.pop(context);
-          Navigator.pop(context);
+          Authentication().signOut();
+          //pushReplacement
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const WelcomeScreen()));
         }
       );
     }
@@ -193,11 +201,11 @@ class _HomeState extends State<Home> {
             body: BottomNav(user: _user,),
           );
         }else{
-          return const SelectTeam();
+          return SelectTeam(user: _user);
         }
       }else{
-        return const SelectDegree();
-      }
+        return SelectDegree(user: _user);
+      } 
     }else{
       return Scaffold(
         body: Row(

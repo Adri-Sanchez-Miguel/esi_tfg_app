@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:esi_tfg_app/src/screens/challenge_screen.dart';
+import 'package:esi_tfg_app/src/screens/new_challenge_screen.dart';
 import 'package:esi_tfg_app/src/screens/new_message_screen.dart';
+import 'package:esi_tfg_app/src/screens/reclamar_screen.dart';
 import 'package:esi_tfg_app/src/screens/users_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:esi_tfg_app/src/screens/publication_screen.dart';
@@ -16,10 +18,10 @@ class BottomNav extends StatefulWidget {
 
 class _BottomNavState extends State<BottomNav> {
   int _selectedIndex = 0;
-  static const List<Widget> _widgetOptions = <Widget>[
-    PublicationsScreen(),
-    ChallengeScreen(),
-    UsersScreen(),
+  late final List<Widget> _widgetOptions = <Widget>[
+    PublicationsScreen(user: widget.user),
+    ChallengeScreen(user: widget.user),
+    const UsersScreen(),
   ];
 
   void _onItemTapped(int index) {
@@ -59,9 +61,9 @@ class _BottomNavState extends State<BottomNav> {
               PopupMenuItem(
                 child: Center(
                   child:TextButton(
-                    child: const Text("Crear logro", style: TextStyle(color: Colors.black87, fontSize: 17.0)), 
+                    child: const Text("Crear logro", style: TextStyle(color: Colors.black87, fontSize: 17.0), maxLines: 8,), 
                     onPressed: (){
-                      Navigator.pushNamed(context, "/newchallenge");
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => NuevoReto(user: widget.user)));
                     },
                   )
                 ), 
@@ -73,7 +75,7 @@ class _BottomNavState extends State<BottomNav> {
                   child:TextButton(
                     child: const Text("Reclamar logro", style: TextStyle(color: Colors.black87, fontSize: 17.0)), 
                     onPressed: (){
-                      Navigator.pushNamed(context, "/achieve");
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => ReclamarLogro(user: widget.user)));
                     },
                   )
                 ), 

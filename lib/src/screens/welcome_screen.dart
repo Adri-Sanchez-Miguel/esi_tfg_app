@@ -12,6 +12,10 @@ class WelcomeScreen extends StatefulWidget {
 class _WelcomeScreenState extends State<WelcomeScreen> {  
   @override
   Widget build(BuildContext context) {
+    return _fullPage();
+  }
+
+  Widget _fullPage(){
     return Scaffold(
       body: Container(
         padding: const EdgeInsets.symmetric(horizontal: 25.0),
@@ -19,7 +23,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-                  Flexible(child: Image.asset('images/menthor_logo.png')),
+            Flexible(child: Image.asset('images/menthor_logo.png')),
             const SizedBox(height: 75.0,),
             AppButton(
               colorText:Colors.white,

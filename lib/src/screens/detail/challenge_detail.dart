@@ -1,10 +1,15 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:esi_tfg_app/src/services/firestore_service.dart';
+import 'package:esi_tfg_app/src/widgets/app_button.dart';
+import 'package:esi_tfg_app/src/widgets/app_modalbottomsheet.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
-class ChallengeDetail extends StatelessWidget {
+class ChallengeDetail extends StatelessWidget {  
+  final QueryDocumentSnapshot<Map<String, dynamic>>? user;
   final QueryDocumentSnapshot<Map<String, dynamic>> challenge;
-  const ChallengeDetail({Key? key, required this.challenge}) : super(key: key);
+  const ChallengeDetail({Key? key, required this.challenge, this.user}) : super(key: key);
   
   @override
   Widget build(BuildContext context) {
@@ -28,9 +33,10 @@ class ChallengeDetail extends StatelessWidget {
             const SizedBox(height: 20.0, 
             child: Divider(thickness: 3.0, color: Color.fromARGB(255, 180, 50, 87),),),
             const SizedBox(height: 5.0,),
-            const Text("Código QR:", style: TextStyle(fontSize: 35.0, fontWeight: FontWeight.w700),),
+            !challenge['friendly'] ? const Text("Código QR:", style: TextStyle(fontSize: 35.0, fontWeight: FontWeight.w700),): Container(height: 0.0,),
             const SizedBox(height: 10.0,),
-            _getQR(challenge["qr_key"])
+            // Poner bool en la base de datos que indique si se pide el reto por qr o por botón
+            challenge['friendly'] ? _getButton(context) : _getQR(challenge["qr_key"]),
           ]
         )
       )
@@ -65,5 +71,22 @@ class ChallengeDetail extends StatelessWidget {
       version: QrVersions.auto,
       size: 200.0,
     )): Container(height: 0.0,);
+  }
+
+  Widget _getButton(BuildContext context){
+    return AppButton(
+      icon: Icons.camera_alt,
+      name: 'Reclamar reto mediante foto',
+      colorText: Colors.white,
+      color:const Color.fromRGBO(179, 0, 51, 1.0),
+      onPressed: ()async{
+        showModalBottomSheet(
+          context: context, 
+          builder: (BuildContext context){
+            return ModalBottomSheet(method: false, user: user, challenge: challenge);
+          }
+        );
+      }
+    );
   }
 }

@@ -26,17 +26,25 @@ class _UsersScreenState extends State<UsersScreen> {
   QuerySnapshot<Map<String, dynamic>>? _users;
   String _user = "";
   bool _showSpinner = false; 
-  final TextEditingController _messageController = TextEditingController();
+  late TextEditingController _emailController;
 
   @override
   void initState() {
     super.initState();
+    
+    _emailController = TextEditingController();
     _getRightUser();
+  }
+
+    @override
+  void dispose(){
+    super.dispose();
+    _emailController.dispose();
   }
 
   void _getRightUser() async {
     try{
-    var user = await Authentiaction().getRightUser();
+    var user = await Authentication().getRightUser();
     _users = await FirestoreService().getMessage(collectionName: "users");
     if (user != null){
       setState(() {
@@ -91,8 +99,8 @@ class _UsersScreenState extends State<UsersScreen> {
                         primary: const Color.fromARGB(255, 180, 50, 87),
                       ).copyWith(elevation: ButtonStyleButton.allOrNull(0.0)),
                       onPressed: (){
-                        var aux = _messageController.text;
-                        _messageController.clear;
+                        var aux = _emailController.text;
+                        _emailController.clear;
                         setState(() {
                           _user = aux;
                         });
@@ -114,7 +122,7 @@ class _UsersScreenState extends State<UsersScreen> {
     return AppTextField(
       error: "",
       icon: const Icon(Icons.search),
-      controller: _messageController,
+      controller: _emailController,
       keyboardType: TextInputType.emailAddress,
       hint: "Email",
       label: "Buscar usuario",

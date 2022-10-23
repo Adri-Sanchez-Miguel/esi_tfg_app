@@ -1,3 +1,5 @@
+import 'package:esi_tfg_app/src/model/auth_request.dart';
+import 'package:esi_tfg_app/src/screens/verification_email.dart';
 import 'package:esi_tfg_app/src/services/firestore_service.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -8,6 +10,7 @@ import 'package:esi_tfg_app/src/widgets/app_button.dart';
 import 'package:esi_tfg_app/src/widgets/app_errormessage.dart';
 import 'package:esi_tfg_app/src/widgets/app_texfield.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
+import 'dart:math';
 
 enum Menu { mentor, mentorizado, profesor }
 
@@ -20,19 +23,21 @@ class RegistrationScreen extends StatefulWidget {
 }
 
 class _RegistrationScreenState extends State<RegistrationScreen>{
-  String _role = "", _showString = "", _email = "", _password = "", _errorMessage = "";
+  String _role = "", _showString = "", _email = "";
+  final String _errorMessage = "";
   late FocusNode _focusNode;
+  Future<AuthenticationRequest>? auth;
   bool _showSpinner = false;   
   final GlobalKey<FormState> _formkey = GlobalKey<FormState>();
   late TextEditingController _emailController;
-  late TextEditingController _passwordController;
+  final _chars = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
+  final Random _rnd = Random.secure();
 
   @override
   void initState() {
     super.initState();
     _focusNode = FocusNode();
     _emailController = TextEditingController();
-    _passwordController = TextEditingController();
   }
 
   @override
@@ -40,7 +45,6 @@ class _RegistrationScreenState extends State<RegistrationScreen>{
     super.dispose();
     _focusNode.dispose();
     _emailController.dispose();
-    _passwordController.dispose();
   }
 
   void setSpinnersStatus(bool status){
@@ -53,7 +57,6 @@ class _RegistrationScreenState extends State<RegistrationScreen>{
   Widget build(BuildContext context) {
     final bloc = Provider.of<Bloc>(context);
     bloc.changeEmail;
-    bloc.changePassword;
     
     return Scaffold(
       body: SafeArea(
@@ -70,8 +73,6 @@ class _RegistrationScreenState extends State<RegistrationScreen>{
                   Flexible(child: Image.asset('images/menthor_logo.png')),
                   const SizedBox(height: 25.0,),
                   _emailField(bloc),
-                  const SizedBox(height: 15.0,),
-                  _passwordField(bloc),
                   const SizedBox(height: 15.0,),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -113,56 +114,37 @@ class _RegistrationScreenState extends State<RegistrationScreen>{
     );    
   }
 
-  Widget _passwordField(Bloc bloc){
-    return StreamBuilder(
-      stream: bloc.password,
-      builder: (context, snapshot) {
-        return AppTextField(
-          controller: _passwordController,
-          hint: "Tu contraseña",
-          label: "Contraseña",
-          error: snapshot.error as String?,
-          onChanged: bloc.changePassword,
-          obscureText: true,
-        );
-      }
-    );
-  }
-
   Widget _submitButton(Bloc bloc){
     return StreamBuilder(
-      stream: bloc.submitValid,
+      stream: bloc.email,
       builder: (context, snapshot){
         return AppButton(
-          color: snapshot.hasData && _emailController.text != "" && _passwordController.text != "" && _role != "" ? const Color.fromRGBO(179, 0, 51, 1.0): Colors.black54,
-          colorText: snapshot.hasData && _emailController.text != "" && _passwordController.text != "" && _role != "" ? Colors.white: Colors.white54,
+          color: snapshot.hasData && _emailController.text != "" && _role != "" ? const Color.fromRGBO(179, 0, 51, 1.0): Colors.black54,
+          colorText: snapshot.hasData && _emailController.text != "" && _role != "" ? Colors.white: Colors.white54,
           name: 'Registrarse',
-          onPressed: snapshot.hasData && _emailController.text != "" && _passwordController.text != "" && _role != "" ? ()async{
-            _email = bloc.submitEmail();
-            _password = bloc.submitPassword();
-            try {
-              setSpinnersStatus(true);
-              var auth= await Authentiaction().createUser(email: _email, password: _password);
-              if(auth.success){
-                _createUser(_emailController.text);
-                _createInitialPublication(_emailController.text);
-                Navigator.pushNamed(context, "/selectdegree");
-                _emailController.text = "";
-                _passwordController.text = "";
-                bloc.changeEmail;
-                bloc.changePassword;
-                FocusScope.of(context).requestFocus(_focusNode);
-              }else{
-                _errorMessage = auth.errorMessage;
+          onPressed: snapshot.hasData && _emailController.text != "" && _role != "" ? ()async{
+            if(_emailController.text.endsWith('@alu.uclm.es') && _role == "profesor"){
+              toast("Este correo no puede tener el rol de profesor, cambia tu rol para continuar.");
+            }else if(_emailController.text.endsWith('@uclm.es') && _role == "mentorizado"){
+              toast("Este correo no puede tener el rol de mentorizado, cambia tu rol para continuar.");
+            }
+            else{
+              _email = bloc.submitEmail();
+              try {
+                setSpinnersStatus(true);
+                auth= await Authentication().createUser(email: _email, password: _createPassword()).then((_){
+                  _createUser(_emailController.text);
+                  _createInitialPublication(_emailController.text);
+                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const VerifyEmail()));
+                  _emailController.text = "";
+                  bloc.changeEmail;
+                  FocusScope.of(context).requestFocus(_focusNode);
+                  setSpinnersStatus(false);
+                  return null;
+                });
+              }catch(e){
+                toast(e.toString());
               }
-              setSpinnersStatus(false);
-            }catch(e){
-              Fluttertoast.showToast(
-                msg: e.toString(),
-                fontSize: 20,
-                gravity: ToastGravity.CENTER,
-                backgroundColor: Colors.red[400]
-              );
             }
           } : null, 
         );
@@ -209,30 +191,34 @@ class _RegistrationScreenState extends State<RegistrationScreen>{
     var snap = await FirestoreService().getMessage(collectionName: "challenges");
     var initialChallenge = snap.docs.firstWhere((element) => element.reference.toString() == "DocumentReference<Map<String, dynamic>>(challenges/6PAWfB7ZujBpZbdVyNeS)").reference;
     await FirestoreService().save(collectionName: "users", collectionValues: {
-      'email': email,
+      'email': email.toLowerCase(),
       'role': _role,
       'image': '',
       'degree':'',
-      'status': 0,
-      'challenges_completed': {"1": initialChallenge},
+      'verified': false,
+      'coins' : 1,
+      'status': 1,
+      'challenges_completed': {initialChallenge.path: initialChallenge},
       'sign_up_date': DateTime.now(),
       'team': {}
     }); 
   }
 
   void _createInitialPublication(String email) async{
-    // Si la visibilidad es todos, decider es '', 
-    // si es equipo, la referencia del equipo y si es carrera el string de la carrera
+    // INFO: Si la visibilidad es todos, decider es '', 
+    // si es equipo, la referencia del equipo, esto es así para 
+    // mostrar los mensajes del equipo del usuario en el muro
     var snap = await FirestoreService().getMessage(collectionName: "challenges");
     var challenge = snap.docs.firstWhere((element) => element.reference.toString() == "DocumentReference<Map<String, dynamic>>(challenges/6PAWfB7ZujBpZbdVyNeS)").reference;
     await FirestoreService().save(collectionName: "publications", collectionValues: {
       'challenge': challenge,
-      'user': email,
+      'user': email.toLowerCase(),
       'visibility': 'todos',
       'decider': "",
       'title': '¡Hola mundo!',
       'creation_date': DateTime.now(),
       'comentarios': {},
+      'degree': "todos",
       'likes': {},
       'photo': "",
       'description': 'Un nuevo usuario/a se ha unido al programa Menthor. ¡A por todas!'
@@ -247,5 +233,19 @@ class _RegistrationScreenState extends State<RegistrationScreen>{
         height: 0.0,
       );
     }
+  }
+
+  Future<bool?> toast(String message){
+    return Fluttertoast.showToast(
+      msg: message,
+      fontSize: 20,
+      gravity: ToastGravity.CENTER,
+      backgroundColor: Colors.red[400]
+    );
+  }
+  
+  String _createPassword() {
+    // Crear contraseña segura y random
+    return String.fromCharCodes(Iterable.generate(16, (_) => _chars.codeUnitAt(_rnd.nextInt(_chars.length))));
   }
 }

@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 
 class AppButton extends StatelessWidget {
   final Color color;
+  final IconData? icon;
   final Color colorText;
   final Future<void> Function()? onPressed;
   final String name;
   
-  const AppButton({Key? key, required this.color, required this.onPressed, required this.name, required this.colorText}) : super(key: key);
+  const AppButton({Key? key, required this.color, required this.onPressed, required this.name, required this.colorText, this.icon}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -18,9 +19,10 @@ class AppButton extends StatelessWidget {
         elevation: 5.0,
         child: SizedBox(
           height: 43.0,
-          child: TextButton(
+          child: TextButton.icon(
+            icon: Icon(icon, color: Colors.white,),
             onPressed: onPressed, 
-            child: Text(name, style: TextStyle(color:colorText ),) 
+            label: Text(name, style: TextStyle(color:colorText ),) 
           ),
         )
       ),

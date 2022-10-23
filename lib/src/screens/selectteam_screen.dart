@@ -1,29 +1,31 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:esi_tfg_app/src/services/authentication.dart';
+import 'package:esi_tfg_app/src/screens/home.dart';
 import 'package:esi_tfg_app/src/services/firestore_service.dart';
 import 'package:esi_tfg_app/src/widgets/app_button.dart';
 import 'package:esi_tfg_app/src/widgets/app_card.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 
 class SelectTeam extends StatefulWidget {
   static const String routeName = '/selectteam';
-  const SelectTeam({Key? key}) : super(key: key);
+  final QueryDocumentSnapshot<Map<String, dynamic>>? user;
+  const SelectTeam({Key? key, this.user}) : super(key: key);
 
   @override
   State<SelectTeam> createState() => _SelectTeamState();
 }
 
 class _SelectTeamState extends State<SelectTeam> {
-  User? loggedInUser;
   bool _showSpinner = false;
   bool _completed = false; 
+  bool rechargePage = false;
   QueryDocumentSnapshot? _team;
   QuerySnapshot<Map<String, dynamic>>? _snap;
   QuerySnapshot<Map<String, dynamic>>? _degrees;
-  QueryDocumentSnapshot<Map<String, dynamic>>? _user;
   
   @override
   void initState() {
@@ -39,15 +41,13 @@ class _SelectTeamState extends State<SelectTeam> {
 
   void _getEmail() async {
     try{
-      var user = await Authentiaction().getRightUser();
       _snap = await FirestoreService().getMessage(collectionName: "users");
       _degrees = await FirestoreService().getMessage(collectionName: "degrees");
-      if (user != null && _snap != null && _degrees != null){
-        setState(() {
-          loggedInUser = user;
-          _user = _snap!.docs.firstWhere((element) => element["email"] == loggedInUser!.email);
-        });
-      }
+      setState(() {
+        if(_snap !=null && _degrees != null){
+          rechargePage = true;
+        }
+      });
     }catch(e){
       Fluttertoast.showToast(
         msg: e.toString(),
@@ -59,16 +59,11 @@ class _SelectTeamState extends State<SelectTeam> {
   }
 
   String _getFinalRole(){ 
-    // Cambiarlo todo a Map en vez de Array 
-    // Los profes también tienen que elegir carrera en esta pestaña
-    // Primero se meten los mentores, luego los mentorizados (quitar botón empty)
-    // Todos, educación e informática en visibility de publications aparte de roles
-    // Reclamar logros o poner mensajes en el muro y crear logros en logros
-    if(loggedInUser!.email!.endsWith('@uclm.es')){
+  if(widget.user!['email'].endsWith('@uclm.es')){
         return "profesor";
     }
     else{
-      if(_user!['role'] == "mentorizado"){
+      if(widget.user!['role'] == "mentorizado"){
         return "mentorizado";
       }else{
         return "mentor";
@@ -78,31 +73,37 @@ class _SelectTeamState extends State<SelectTeam> {
 
   @override
   Widget build(BuildContext context){
-    if (loggedInUser != null){
-      setSpinnersStatus(false);
-      return Scaffold(
-        appBar: AppBar(
-          automaticallyImplyLeading: false,
-          title: const Text("Equipo"),
-        ),
-        body: ModalProgressHUD(
-          inAsyncCall: _showSpinner,
-          child:Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 30.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.stretch,    
-              children:  _getFinalRole() == "profesor" ? _widgetTeacher() : _widgetStudent()
-            ),
+    setSpinnersStatus(false);
+    return Scaffold(
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        title: const Text("Equipo"),
+      ),
+      body: rechargePage ? ModalProgressHUD(
+        inAsyncCall: _showSpinner,
+        child:Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 30.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,    
+            children:  _getFinalRole() == "profesor" ? _widgetTeacher() : _widgetStudent()
           ),
         ),
-      );
-    }else{
-      setSpinnersStatus(true);
-      return Container(
-        height: 0.0,
-      );
-    }
+      ) : Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,    
+          children:<Widget>[
+            Container(
+              padding: const EdgeInsets.only(top: 100.0),
+              child: Center( 
+                child: Platform.isAndroid ? 
+                const CircularProgressIndicator() 
+                : const CupertinoActivityIndicator()
+              )
+            )
+          ]
+        ),
+    );
   }
 
   List<Widget> _widgetTeacher(){
@@ -209,46 +210,44 @@ class _SelectTeamState extends State<SelectTeam> {
   }
   
   void _createTeam() async{
-    // Comprobar método entero (no funcionaba bien y hay que cambiar cosas)
-    // Dentro del add irá el Map
     var snap = await FirestoreService().getMessage(collectionName: "teams");
     if(_getFinalRole() != "profesor"){
       var finalTeam = snap.docs.firstWhere((element) => element.reference == _team!.reference);
       if(_getFinalRole() != "mentor"){
         Map<String, dynamic> students = finalTeam['students'];
         students.addAll({
-            (finalTeam['students'].length + 1).toString() : _user!.reference,
+            (finalTeam['students'].length + 1).toString() : widget.user!.reference,
           });
         await FirestoreService().update(document: finalTeam.reference, collectionValues: {
           'students': students,
         }); 
       }else{
         await FirestoreService().update(document: finalTeam.reference, collectionValues: {
-          'mentor': _user!.reference,
+          'mentor': widget.user!.reference,
         }); 
       }
-      Map<String, dynamic> teams = _user!['team'];
+      Map<String, dynamic> teams = widget.user!['team'];
       teams.addAll({
-            (_user!['team'].length + 1).toString() : finalTeam.reference
+            (widget.user!['team'].length + 1).toString() : finalTeam.reference
         });
-      await FirestoreService().update(document: _user!.reference, collectionValues: {
+      await FirestoreService().update(document: widget.user!.reference, collectionValues: {
         'team': teams,
       }); 
     }else{
       await FirestoreService().save(collectionName: "teams", collectionValues: {
-        'teacher': _user!.reference,
-        'degree': _user!['degree'],
+        'teacher': widget.user!.reference,
+        'degree': widget.user!['degree'],
         'name': snap.docs.length + 1,
         'students': {},
         'mentor': null
       }); 
       snap = await FirestoreService().getMessage(collectionName: "teams");
-      var teacherTeam = snap.docs.firstWhere((element) => element['teacher'] == _user!.reference); 
-      Map<String, dynamic> teams = _user!['team'];
+      var teacherTeam = snap.docs.firstWhere((element) => element['name'] == snap.docs.length); 
+      Map<String, dynamic> teams = widget.user!['team'];
       teams.addAll({
-            (_user!['team'].length + 1).toString() : teacherTeam.reference
+            (widget.user!['team'].length + 1).toString() : teacherTeam.reference
         });
-      await FirestoreService().update(document: _user!.reference, collectionValues: {
+      await FirestoreService().update(document: widget.user!.reference, collectionValues: {
         'team': teams,
       }); 
     }
@@ -263,7 +262,7 @@ class _SelectTeamState extends State<SelectTeam> {
         onPressed:()async{
           _createTeam();
           Navigator.pop(context);
-          Navigator.pushNamed(context, "/home");
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const Home()));
         }
       );
     }else{

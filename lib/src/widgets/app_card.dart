@@ -5,13 +5,14 @@ class AppCard extends StatelessWidget {
   final Widget? title;
   final Widget? subtitle;
   final Widget? leading;
+  final Widget? photo;
   final Widget? trailing;
   final Color? color;
   final Color? iconColor;
   final Color? textColor;
   final Color borderColor;
   final double radius;
-  const AppCard({Key? key, this.onTap, this.title, this.subtitle, this.leading, this.color, this.textColor, this.iconColor, required this.radius, required this.borderColor, this.trailing}) : super(key: key);
+  const AppCard({Key? key, this.onTap, this.title, this.subtitle, this.leading, this.color, this.textColor, this.iconColor, required this.radius, required this.borderColor, this.trailing, this.photo}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +38,7 @@ class AppCard extends StatelessWidget {
                 selectedColor: Colors.black,
                 iconColor: iconColor,
                 textColor: textColor,
-                leading: leading,
+                leading: SizedBox(height: 100, width: 60, child:leading),
                 title: title,
                 subtitle: subtitle,
                 onTap: onTap,
@@ -45,6 +46,7 @@ class AppCard extends StatelessWidget {
             ),
           ],
         ),
+        subtitle: photo,
       ),
     );
   }

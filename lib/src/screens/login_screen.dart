@@ -1,3 +1,7 @@
+import 'dart:io';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:esi_tfg_app/src/screens/home.dart';
 import 'package:esi_tfg_app/src/services/firestore_service.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -8,6 +12,7 @@ import 'package:esi_tfg_app/src/widgets/app_button.dart';
 import 'package:esi_tfg_app/src/widgets/app_errormessage.dart';
 import 'package:esi_tfg_app/src/widgets/app_texfield.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
+import 'package:flutter/cupertino.dart';
 
 class LoginScreen extends StatefulWidget {
   static const String routeName = '/login';
@@ -20,10 +25,11 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen>{
   String _email = "", _password = "", _errorMessage= "";
   late FocusNode _focusNode;
-  bool _showSpinner = false; 
+  bool _showSpinner = false, showable = false; 
   final GlobalKey<FormState> _formkey = GlobalKey<FormState>();
   late TextEditingController _emailController;
   late TextEditingController _passwordController;
+  QueryDocumentSnapshot<Map<String, dynamic>>? _user;
 
   @override
   void initState() {
@@ -31,6 +37,7 @@ class _LoginScreenState extends State<LoginScreen>{
     _focusNode = FocusNode();
     _emailController = TextEditingController();
    _passwordController = TextEditingController();
+   _getEmail();
   }
 
   @override
@@ -41,6 +48,39 @@ class _LoginScreenState extends State<LoginScreen>{
     _passwordController.dispose();
   }
 
+   void _getEmail() async {
+    try{
+      await Future.delayed(const Duration(milliseconds: 2000));
+      var user = await Authentication().getRightUser();
+      var snap = await FirestoreService().getMessage(collectionName: "users");
+
+      if (user != null){
+        setState(() {
+          _user = snap.docs.firstWhere((element) => element["email"] == user.email);
+          if(_user!["verified"]){
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const Home()));
+          }
+          else{
+            showable = true;
+            Authentication().signOut();
+          }
+        });
+      }else {
+        setState(() {
+          showable = true;
+        });
+      }
+    }catch(e){
+      Authentication().signOut();
+      Fluttertoast.showToast(
+        msg: e.toString(),
+        fontSize: 20,
+        gravity: ToastGravity.CENTER,
+        backgroundColor: Colors.red[400]
+      );
+    }
+  }
+
   void setSpinnersStatus(bool status){
     setState(() {
       _showSpinner = status;
@@ -49,6 +89,30 @@ class _LoginScreenState extends State<LoginScreen>{
 
   @override
   Widget build(BuildContext context) {
+    if(showable){
+      return _fullPage();
+    }else{
+      return Scaffold(
+        body: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,    
+          children:<Widget>[
+            const Center(child:Text("Comprobando su sesión...")),
+            Container(
+              padding: const EdgeInsets.only(top: 100.0),
+              child: Center( 
+                child: Platform.isAndroid ? 
+                const CircularProgressIndicator() 
+                : const CupertinoActivityIndicator()
+              )
+            )
+          ]
+        )
+      );
+    }
+  }
+
+  Widget _fullPage(){
     final bloc = Provider.of<Bloc>(context);
     _emailController.text = "";
     _passwordController.text = "";
@@ -75,8 +139,7 @@ class _LoginScreenState extends State<LoginScreen>{
                   _submitButton(bloc),
                   _showErrorMessage(),
                   const SizedBox(height: 10.0,),
-                  const Text("En caso de olvidar la contraseña, enviar un correo a: menthor.uclm@gmail.com",
-                        textAlign: TextAlign.center,)
+                  _resetPassword()
                 ],
               ),
             ),
@@ -133,25 +196,16 @@ class _LoginScreenState extends State<LoginScreen>{
             _password = bloc.submitPassword();
             try {
               setSpinnersStatus(true);
-              var auth = await Authentiaction().loginUser(email: _email, password: _password);
-              if (auth.success){              
-                var users = await FirestoreService().getMessage(collectionName: "users");
-                var finalUser = users.docs.firstWhere((element) => element["email"] == _email);
-                // Condición por si no hay equipo
-                if(finalUser['degree'] != ""){
-                  if(finalUser['team'].isNotEmpty){
-                    Navigator.pushNamed(context, "/home");
-                  }else{
-                    Navigator.pushNamed(context, "/selectteam");
-                  }
-                }else{
-                  Navigator.pushNamed(context, "/selectdegree");
-                }
-                _emailController.text = "";
-                _passwordController.text = "";
-                bloc.changeEmail;
-                bloc.changePassword;
-                FocusScope.of(context).requestFocus(_focusNode);
+              var auth = await Authentication().loginUser(email: _email, password: _password);
+              if (auth.success){   
+                await Future.delayed(const Duration(milliseconds: 2000)).then((_){
+                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const Home()));
+                  _emailController.text = "";
+                  _passwordController.text = "";
+                  bloc.changeEmail;
+                  bloc.changePassword;
+                  FocusScope.of(context).requestFocus(_focusNode);
+                });
               }else{
                 setState(() {
                   _errorMessage = auth.errorMessage;
@@ -181,5 +235,20 @@ class _LoginScreenState extends State<LoginScreen>{
         height: 0.0,
       );
     }
+  }
+
+  Widget _resetPassword(){
+    return GestureDetector(
+      onTap: (){
+        Navigator.pushNamed(context, "/password");
+      },
+      child: Text("He olvidado mi contraseña",
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          decoration: TextDecoration.underline,
+          color: Colors.blue[800]
+        ),
+      ),
+    );
   }
 }

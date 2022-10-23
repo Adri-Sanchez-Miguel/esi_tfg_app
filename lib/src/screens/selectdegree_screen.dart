@@ -1,27 +1,24 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:esi_tfg_app/src/services/authentication.dart';
 import 'package:esi_tfg_app/src/services/firestore_service.dart';
 import 'package:esi_tfg_app/src/widgets/app_button.dart';
 import 'package:esi_tfg_app/src/widgets/app_card.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 
 class SelectDegree extends StatefulWidget {
   static const String routeName = '/selectdegree';
-  const SelectDegree({Key? key}) : super(key: key);
+  final QueryDocumentSnapshot<Map<String, dynamic>>? user;
+  const SelectDegree({Key? key, this.user}) : super(key: key);
 
   @override
   State<SelectDegree> createState() => _SelectDegreeState();
 }
 
 class _SelectDegreeState extends State<SelectDegree> {
-  User? loggedInUser;
   bool _showSpinner = false;
   bool _completed = false; 
   QueryDocumentSnapshot? _degree;
-  QueryDocumentSnapshot<Map<String, dynamic>>? _user;
 
   void setSpinnersStatus(bool status){
     setState(() {
@@ -117,22 +114,8 @@ class _SelectDegreeState extends State<SelectDegree> {
   }
 
   void _changeUserDegree() async{
-      try{
-      var user = await Authentiaction().getRightUser();
-      var snap = await FirestoreService().getMessage(collectionName: "users");
-      if (user != null){
-        _user = snap.docs.firstWhere((element) => element["email"] == user.email);
-      }
-    }catch(e){
-      Fluttertoast.showToast(
-        msg: e.toString(),
-        fontSize: 20,
-        gravity: ToastGravity.CENTER,
-        backgroundColor: Colors.red[400]
-      );
-    }
-    if(_user!=null){
-      await FirestoreService().update(document: _user!.reference, collectionValues: {
+    if(widget.user!=null){
+      await FirestoreService().update(document: widget.user!.reference, collectionValues: {
         'degree': _degree!['titulo'] 
       }); 
     }

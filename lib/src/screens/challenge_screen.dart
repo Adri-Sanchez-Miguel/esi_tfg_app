@@ -12,9 +12,10 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 
 class ChallengeScreen extends StatefulWidget {
+  final QueryDocumentSnapshot<Map<String, dynamic>>? user;
   static const String routeName = '/challenges';
 
-  const ChallengeScreen({Key? key}) : super(key: key);
+  const ChallengeScreen({Key? key, this.user}) : super(key: key);
 
   @override
   State<ChallengeScreen> createState() => _ChallengeScreenState();
@@ -33,7 +34,7 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
 
   void _getRightUser() async {
     try{
-    var user = await Authentiaction().getRightUser();
+    var user = await Authentication().getRightUser();
     _users = await FirestoreService().getMessage(collectionName: "users");
     if (user != null){
       setState(() {
@@ -72,7 +73,6 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
         )
       );
     }else{
-      // Poner un texto que indique que se está cargando
       return const Text("Cargando...");
     }
   }
@@ -153,24 +153,22 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
       ),
       subtitle: Text('\n$description'),
       onTap: (){
-        Navigator.push(context, MaterialPageRoute(builder: (context) => ChallengeDetail(challenge: challenge)));
+        Navigator.push(context, MaterialPageRoute(builder: (context) => ChallengeDetail(challenge: challenge, user: widget.user)));
       }
     );
   }
 
   Widget _getItems(BuildContext context, QueryDocumentSnapshot<Map<String, dynamic>> challenge){
     if(challenge['end_date'].toDate().isAfter(DateTime.now())){
-      QueryDocumentSnapshot<Map<String, dynamic>> user = 
-        _users!.docs.firstWhere((element) => element["email"] == loggedInUser.email);
+      QueryDocumentSnapshot<Map<String, dynamic>> user = _users!.docs.firstWhere((element) => element["email"] == loggedInUser.email);
       Map<String, dynamic> completed = user['challenges_completed'];
-      // Ver vídeo para cambiar esta atrocidad de limpieza de código que hay aquí
       if(!completed.containsValue(challenge.reference)){
         if(challenge['degree'] == user['degree'] || challenge['degree']=="todos"){
           if(challenge['users_visibility'] == user['role'] || challenge['users_visibility']=="todos"){
             switch(challenge['level']){
               case 1:
                 return _getAppCard(Image.asset('images/bronze.png'), challenge, const Color.fromARGB(255, 114, 64, 7));
-              case 2:
+              case 5:
                 return _getAppCard(Image.asset('images/silver.png'), challenge, Colors.grey);
               default:
                 return _getAppCard(Image.asset('images/gold.png'),challenge, Colors.yellow[700]);

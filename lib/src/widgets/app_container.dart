@@ -17,7 +17,11 @@ class ContainTextField extends StatelessWidget {
       child: TextFormField(
         maxLines: maxLines,
         controller: controller,
-        validator: ((value) => value!.isEmpty ? "Rellene el campo" : null),
+        validator: ((value) {
+          if(value!.isEmpty || value.length > 140) {
+            return "El texto debe tener entre 1 y 140 caracteres";
+          }else{return null;} 
+        }),
         style: const TextStyle(fontSize: 20.0),
         decoration: InputDecoration(
           contentPadding:

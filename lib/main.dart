@@ -1,6 +1,8 @@
-import 'package:esi_tfg_app/src/screens/new_challenge_screen.dart';
+import 'package:esi_tfg_app/src/screens/reset_password.dart';
 import 'package:esi_tfg_app/src/screens/selectdegree_screen.dart';
 import 'package:esi_tfg_app/src/screens/selectteam_screen.dart';
+import 'package:esi_tfg_app/src/screens/verification_email.dart';
+import 'package:esi_tfg_app/src/widgets/app_introduction.dart';
 import 'package:flutter/material.dart';
 import 'package:esi_tfg_app/src/bloc/bloc.dart';
 import 'package:esi_tfg_app/src/screens/publication_screen.dart';
@@ -11,6 +13,7 @@ import 'package:esi_tfg_app/src/screens/registration_screen.dart';
 import 'package:esi_tfg_app/src/screens/settings_screen.dart';
 import 'package:esi_tfg_app/src/screens/welcome_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 import 'firebase_options.dart';
 
@@ -28,6 +31,7 @@ Future<void> main() async {
   // Animaciones (?)
   // Hacer que no se pueda dar marcha atrás en el menú principal
   // Añadir foto en la publicación y al completar reto
+  try{
   runApp(
     Provider(
       create: (context) => Bloc(),
@@ -46,11 +50,13 @@ Future<void> main() async {
           LoginScreen.routeName: (BuildContext context) => const LoginScreen(),
           WelcomeScreen.routeName: (BuildContext context) => const WelcomeScreen(),
           RegistrationScreen.routeName: (BuildContext context) => const RegistrationScreen(),
+          VerifyEmail.routeName:  (BuildContext context) => const VerifyEmail(),
           Home.routeName:  (BuildContext context) => const Home(),
           PublicationsScreen.routeName: (BuildContext context) => const PublicationsScreen(),
-          Settings.routeName: (BuildContext context) => const Settings(),
+          SettingsScreen.routeName: (BuildContext context) => const SettingsScreen(),
           ReclamarLogro.routeName: (BuildContext context) => const ReclamarLogro(),
-          NuevoReto.routeName: (BuildContext context) => const NuevoReto(),
+          NewPassword.routeName: (BuildContext context) => const NewPassword(),
+          IntroductionPages.routeName: (BuildContext context) => const IntroductionPages(),
         },
       )
     )
@@ -59,4 +65,12 @@ Future<void> main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  }catch(e){
+    Fluttertoast.showToast(
+      msg: "Error inicializando Firebsase",
+      fontSize: 20,
+      gravity: ToastGravity.CENTER,
+      backgroundColor: Colors.red[400]
+    );
+  }
 }
