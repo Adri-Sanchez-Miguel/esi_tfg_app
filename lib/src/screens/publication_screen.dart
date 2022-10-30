@@ -317,15 +317,12 @@ class _PublicationsScreenState extends State<PublicationsScreen> {
             child:Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Container(
-                padding: const EdgeInsets.symmetric(vertical: 10.0),
-                child: SizedBox (
-                  height: height,
-                  child: Image.network(
-                    snapshot.data!,
-                    fit: BoxFit.cover
-                  ),
-                )
+              SizedBox (
+                height: height,
+                child: Image.network(
+                  snapshot.data!,
+                  fit: BoxFit.cover
+                ),
               )
             ]
           )

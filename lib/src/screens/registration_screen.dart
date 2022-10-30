@@ -1,6 +1,7 @@
 import 'package:esi_tfg_app/src/model/auth_request.dart';
 import 'package:esi_tfg_app/src/screens/verification_email.dart';
 import 'package:esi_tfg_app/src/services/firestore_service.dart';
+import 'package:esi_tfg_app/src/services/local_notification_service.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
@@ -32,10 +33,13 @@ class _RegistrationScreenState extends State<RegistrationScreen>{
   late TextEditingController _emailController;
   final _chars = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
   final Random _rnd = Random.secure();
+  late final LocalNotificationService service;
 
   @override
   void initState() {
     super.initState();
+    service = LocalNotificationService();
+    service.init();
     _focusNode = FocusNode();
     _emailController = TextEditingController();
   }
@@ -135,6 +139,7 @@ class _RegistrationScreenState extends State<RegistrationScreen>{
                 auth= await Authentication().createUser(email: _email, password: _createPassword()).then((_){
                   _createUser(_emailController.text);
                   _createInitialPublication(_emailController.text);
+                  _createNotification();
                   Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const VerifyEmail()));
                   _emailController.text = "";
                   bloc.changeEmail;
@@ -223,6 +228,12 @@ class _RegistrationScreenState extends State<RegistrationScreen>{
       'photo': "",
       'description': 'Un nuevo usuario/a se ha unido al programa Menthor. ¡A por todas!'
     }); 
+  }
+
+  void _createNotification()async {
+    await service.showNotification(id: 0, 
+      title: "¡Bienvenido/a", 
+      body: "Recuerda que debes cambiar tu contraseña por otra que cumpla los requisitos de seguridad.");
   }
 
   Widget _showErrorMessage(){

@@ -1,9 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:esi_tfg_app/src/services/firestore_service.dart';
 import 'package:esi_tfg_app/src/widgets/app_button.dart';
 import 'package:esi_tfg_app/src/widgets/app_modalbottomsheet.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 class ChallengeDetail extends StatelessWidget {  
@@ -35,7 +33,6 @@ class ChallengeDetail extends StatelessWidget {
             const SizedBox(height: 5.0,),
             !challenge['friendly'] ? const Text("Código QR:", style: TextStyle(fontSize: 35.0, fontWeight: FontWeight.w700),): Container(height: 0.0,),
             const SizedBox(height: 10.0,),
-            // Poner bool en la base de datos que indique si se pide el reto por qr o por botón
             challenge['friendly'] ? _getButton(context) : _getQR(challenge["qr_key"]),
           ]
         )

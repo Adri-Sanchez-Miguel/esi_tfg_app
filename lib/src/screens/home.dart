@@ -77,15 +77,26 @@ class _HomeState extends State<Home> {
   }
  // Cambiar tamaño grupo
   Drawer getDrawer(BuildContext context){
+    List<String>? split = _user?['email'].toString().split('@');
+    String? email = split?.first;
+    String? coins = _user?['coins'].toString();
+    String? status =_user?['status'].toString();
     var header = Column(
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
         DrawerHeader(
-          child: Image.asset('images/menthor_logo.png', scale: 0.8,),
+          decoration: const BoxDecoration(
+            color: Color.fromARGB(255, 180, 50, 87)
+          ),
+          child: Image.asset('images/menthor_logo_w.png'),
           ), 
         Padding(padding: const EdgeInsets.all(20.0),
-        child: Text(_user?["email"], style: const TextStyle(fontSize: 20.0),)),
+          child: Text(email!, style: const TextStyle(fontSize: 20.0, fontWeight: FontWeight.w500),)),
+        Padding(padding: const EdgeInsets.symmetric(horizontal: 20.0),
+          child: Text("Nivel: $status"),),
+        Padding(padding: const EdgeInsets.symmetric(horizontal: 20.0),
+          child: Text("Monedas: $coins"),),
         const Divider()
       ]
     );
