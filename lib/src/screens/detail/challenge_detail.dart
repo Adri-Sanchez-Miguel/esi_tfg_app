@@ -44,9 +44,9 @@ class ChallengeDetail extends StatelessWidget {
     switch(level){
       case 1:
         return const Text("Bronce", style: TextStyle(fontSize: 17.0, fontWeight: FontWeight.w500));
-      case 2:
+      case 5:
         return const Text("Plata", style:  TextStyle(fontSize: 17.0, fontWeight: FontWeight.w500));
-      case 3:
+      case 20:
         return const Text("Oro", style: TextStyle(fontSize: 17.0, fontWeight: FontWeight.w500));
       default:
         return const Text("Error", style: TextStyle(fontSize: 17.0, fontWeight: FontWeight.w500));

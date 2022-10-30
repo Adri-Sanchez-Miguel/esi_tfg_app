@@ -232,7 +232,7 @@ class _RegistrationScreenState extends State<RegistrationScreen>{
 
   void _createNotification()async {
     await service.showNotification(id: 0, 
-      title: "¡Bienvenido/a", 
+      title: "¡Bienvenido/a!", 
       body: "Recuerda que debes cambiar tu contraseña por otra que cumpla los requisitos de seguridad.");
   }
 

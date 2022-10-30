@@ -94,9 +94,8 @@ class _UsersScreenState extends State<UsersScreen> {
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         // Foreground color
-                        onPrimary: Theme.of(context).colorScheme.onPrimary,
-                        // Background color
-                        primary: const Color.fromARGB(255, 180, 50, 87),
+                        foregroundColor: Theme.of(context).colorScheme.onPrimary, 
+                        backgroundColor: const Color.fromARGB(255, 180, 50, 87),
                       ).copyWith(elevation: ButtonStyleButton.allOrNull(0.0)),
                       onPressed: (){
                         var aux = _emailController.text;

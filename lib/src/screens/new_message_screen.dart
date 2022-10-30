@@ -82,7 +82,7 @@ class _NuevoMensajeState extends State<NuevoMensaje> {
               imageFile == null ? 
                 Padding(
                   padding:const EdgeInsets.only(left: 100.0, right: 100.0),
-                  child: AppButton(icon: Icons.photo, color: const Color.fromARGB(255, 180, 50, 87), onPressed: ()async{_seleccionGaleria();}, name: "Selecciona una foto", colorText: Colors.white)) 
+                  child: AppButton(icon: Icons.photo, color: const Color.fromARGB(255, 180, 50, 87), onPressed: ()async{_seleccionGaleria();}, name: "Selecciona foto", colorText: Colors.white)) 
                 :Padding(
                   padding:const EdgeInsets.only(top: 15.0, left: 15.0, right: 15.0),
                   child: Image.file(

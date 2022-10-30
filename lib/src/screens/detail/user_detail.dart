@@ -1,10 +1,10 @@
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:esi_tfg_app/src/screens/detail/team_detail.dart';
 import 'package:esi_tfg_app/src/services/firestore_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 
 import '../../services/storage_service.dart';
 
@@ -24,63 +24,68 @@ class UserDetail extends StatelessWidget {
         appBar: AppBar(
           title: const Text("User"),
         ),
-      body: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 25.0, vertical: 30.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,    
-              children:<Widget>[
-                user!["image"] != "" ? _getPhoto(user!["image"], 100.0): const Icon(Icons.person, size: 100.0,),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10.0) ,
-                  child: Center(
-                    child: Text(email, style: const TextStyle(color: Color.fromARGB(255, 180, 50, 87),fontSize: 25.0, fontWeight: FontWeight.w700)),
-                  ),
-                )
-              ]
-            ),
-            const Divider(thickness: 1.0, color: Colors.black,),
-            const SizedBox(height: 10.0,), 
-            const Text("Miembro desde:", style: TextStyle(fontSize: 25.0, fontWeight: FontWeight.w700),),
-            Text(date, style: const TextStyle(fontSize: 17.0, fontWeight: FontWeight.w500),),
-            const SizedBox(height: 10.0,), 
-            const Divider(thickness: 1.0, color: Colors.black,),            
-            const SizedBox(height: 10.0,), 
-            const Text("Rol:", style: TextStyle(fontSize: 25.0, fontWeight: FontWeight.w700),),
-            Text(user!['role'], style: const TextStyle(fontSize: 17.0, fontWeight: FontWeight.w500),),
-            const SizedBox(height: 10.0,),
-            const Divider(thickness: 1.0, color: Colors.black,),            
-            const SizedBox(height: 10.0,),
-            const Text("Nivel:", style: TextStyle(fontSize: 25.0, fontWeight: FontWeight.w700),),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.center,    
-              children:<Widget>[
-                  _getStatus(user!['status']),
+      body: SingleChildScrollView(
+        child:Container(
+          padding: const EdgeInsets.symmetric(horizontal: 25.0, vertical: 30.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,    
+                children:<Widget>[
+                  user!["image"] != "" ? _getPhoto(user!["image"], 100.0): const Icon(Icons.person, size: 100.0,),
                   Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10.0) ,
-                  child: Center(
-                    child: Text(" ($status)", style: const TextStyle(color: Color.fromARGB(255, 180, 50, 87),fontSize: 25.0, fontWeight: FontWeight.w700)),
-                  ),
-                )
-              ]
-            ),
-            const SizedBox(height: 10.0,),
-            const Divider(thickness: 1.0, color: Colors.black,),            
-            const SizedBox(height: 10.0,),
-            const Text("Equipo/s:", style: TextStyle(fontSize: 25.0, fontWeight: FontWeight.w700),),
-            _getList("teams", true),
-            const SizedBox(height: 10.0,),
-            const Divider(thickness: 1.0, color: Colors.black,),            
-            const SizedBox(height: 10.0,),
-            const Text("Retos completados:", style: TextStyle(fontSize: 25.0, fontWeight: FontWeight.w700),),
-            _getList("challenges", false)
-          ]
-        )
+                    padding: const EdgeInsets.symmetric(horizontal: 10.0) ,
+                    child: Center(
+                      child: Text(email, style: const TextStyle(color: Color.fromARGB(255, 180, 50, 87),fontSize: 25.0, fontWeight: FontWeight.w700)),
+                    ),
+                  )
+                ]
+              ),
+              const SizedBox(height: 10.0,),
+              const Divider(thickness: 1.0, color: Colors.black,),
+              const SizedBox(height: 10.0,), 
+              const Text("Miembro desde:", style: TextStyle(fontSize: 25.0, fontWeight: FontWeight.w700),),
+              Text(date, style: const TextStyle(fontSize: 17.0, fontWeight: FontWeight.w500),),
+              const SizedBox(height: 10.0,), 
+              const Divider(thickness: 1.0, color: Colors.black,),            
+              const SizedBox(height: 10.0,), 
+              const Text("Rol:", style: TextStyle(fontSize: 25.0, fontWeight: FontWeight.w700),),
+              Text(user!['role'], style: const TextStyle(fontSize: 17.0, fontWeight: FontWeight.w500),),
+              const SizedBox(height: 10.0,),
+              const Divider(thickness: 1.0, color: Colors.black,),            
+              const SizedBox(height: 10.0,),
+              const Text("Nivel de experiencia:", style: TextStyle(fontSize: 25.0, fontWeight: FontWeight.w700),),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,    
+                children:<Widget>[
+                    _getStatus(user!['status']),
+                    Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10.0) ,
+                    child: Center(
+                      child: Text(" ($status)", style: const TextStyle(color: Color.fromARGB(255, 180, 50, 87),fontSize: 25.0, fontWeight: FontWeight.w700)),
+                    ),
+                  )
+                ]
+              ),
+              const SizedBox(height: 10.0,),
+              const Divider(thickness: 1.0, color: Colors.black,),            
+              const SizedBox(height: 10.0,),
+              const Text("Retos completados:", style: TextStyle(fontSize: 25.0, fontWeight: FontWeight.w700),),
+              _getList(context, "challenges", false),
+              const SizedBox(height: 10.0,),
+              const Divider(thickness: 1.0, color: Colors.black,),            
+              const SizedBox(height: 10.0,),
+              const Text("Equipo/s:", style: TextStyle(fontSize: 25.0, fontWeight: FontWeight.w700),),
+              _getList(context,"teams", true),
+              
+            ]
+          )
+        ),
       ),
     );
   }
@@ -123,20 +128,14 @@ class UserDetail extends StatelessWidget {
             child:Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Container(
+              SizedBox (
                 height: height,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(5),
-                  image: DecorationImage(
-                    fit: BoxFit.cover,
-                    image: CachedNetworkImageProvider(
-                      placeholder: (context, url) => Platform.isAndroid ? 
-                        const CircularProgressIndicator() 
-                        : const CupertinoActivityIndicator()
-                      ,
-                      snapshot.data!
-                    ),
-                  ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: Image.network(
+                      snapshot.data!,
+                      fit: BoxFit.cover
+                    )
                 ),
               )
             ]
@@ -147,15 +146,19 @@ class UserDetail extends StatelessWidget {
     );
   }
 
-  Widget _getList(String collectionName, bool decider){
+  Widget _getList(BuildContext context, String collectionName, bool decider){
     return FutureBuilder<QuerySnapshot<Map<String, dynamic>>>(
       future: FirestoreService().getMessage(collectionName: collectionName),
       builder: (context, snapshot){
         if(snapshot.hasData){
           var messages = snapshot.data!.docs;
           return Flexible(
-            child: ListView(
-              children: decider ? _getTeacherItems(messages) : _getChallengeItems(messages),
+            fit: FlexFit.loose,
+            child: SizedBox(
+              height: decider ? 200.0: 60.0,
+              child:ListView(
+                children: decider ? _getTeacherItems(context, messages) : _getChallengeItems(messages),
+              )
             )
           );
         }else{
@@ -167,14 +170,25 @@ class UserDetail extends StatelessWidget {
     );
   }
 
-  List<Widget> _getTeacherItems(dynamic messages){
+  List<Widget> _getTeacherItems(BuildContext context, dynamic messages){
     List<Widget> messageItems = [];
     Map<String, dynamic> teamsMap = user!['team'];
     Iterable<dynamic> teams = teamsMap.values;
     for(var team in teams){
       var selectedTeam = messages.firstWhere((element) => element.reference == team);
       var name = selectedTeam['name'].toString();
-      messageItems.add(Text("Equipo $name"));
+      messageItems.add(
+        TextButton(
+          style: TextButton.styleFrom(
+            foregroundColor: const Color.fromARGB(255, 209, 73, 111),
+            textStyle: const TextStyle(fontSize: 20),
+          ),
+          onPressed: () {
+            Navigator.push(context, MaterialPageRoute(builder: (context) => TeamDetail(team: selectedTeam)));
+          },
+          child: Text("Equipo $name"),
+        ),
+      );
     }
     return messageItems;
   }

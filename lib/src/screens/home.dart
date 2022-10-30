@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:esi_tfg_app/src/screens/detail/photo_detail.dart';
 import 'package:esi_tfg_app/src/screens/selectdegree_screen.dart';
 import 'package:esi_tfg_app/src/screens/selectteam_screen.dart';
 import 'package:esi_tfg_app/src/screens/detail/team_detail.dart';

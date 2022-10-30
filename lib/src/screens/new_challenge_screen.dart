@@ -85,7 +85,7 @@ class _NuevoRetoState extends State<NuevoReto> {
                 child:_getCoins()
               ),
               _showLevel('images/gold.png', "100 monedas"),
-              _showLevel('images/silver.png', "20 monedas (Gratis profesores)"),
+              _showLevel('images/silver.png', "20 monedas \n(Gratis profesores)"),
               _showLevel('images/bronze.png', "5 monedas (Gratis profesores\n y mentores)"),
               const SizedBox(height: 5.0),
               _getRow("¿Qué nivel tiene el reto?", _showStringLevel, "nivel"),
@@ -347,7 +347,8 @@ class _NuevoRetoState extends State<NuevoReto> {
     return Padding(
       padding:const EdgeInsets.symmetric(horizontal: 30.0),
       child: ElevatedButton(
-        style: ElevatedButton.styleFrom(primary:const Color.fromARGB(255, 180, 50, 87) ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color.fromARGB(255, 180, 50, 87) ),
         onPressed: ()async{
           DateTime? newDate = await showDatePicker(
             context: context, 

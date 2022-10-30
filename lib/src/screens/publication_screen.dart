@@ -319,9 +319,12 @@ class _PublicationsScreenState extends State<PublicationsScreen> {
             children: [
               SizedBox (
                 height: height,
-                child: Image.network(
-                  snapshot.data!,
-                  fit: BoxFit.cover
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(5),
+                  child: Image.network(
+                      snapshot.data!,
+                      fit: BoxFit.cover
+                    )
                 ),
               )
             ]

@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:esi_tfg_app/src/widgets/app_card.dart';
-import 'package:esi_tfg_app/src/widgets/app_introduction.dart';
 import 'package:esi_tfg_app/src/widgets/app_modalbottomsheet.dart';
 import 'package:flutter/material.dart';
 
@@ -51,7 +50,6 @@ class _SettingsScreenState extends State<SettingsScreen>{
           )
         ]
       )
-      // IntroductionPages()
     );
   }
 }
