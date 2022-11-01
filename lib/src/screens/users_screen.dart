@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:esi_tfg_app/src/screens/detail/user_detail.dart';
+import 'package:esi_tfg_app/src/services/storage_service.dart';
 import 'package:esi_tfg_app/src/widgets/app_card.dart';
 import 'package:esi_tfg_app/src/widgets/app_texfield.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -27,6 +28,7 @@ class _UsersScreenState extends State<UsersScreen> {
   String _user = "";
   bool _showSpinner = false; 
   late TextEditingController _emailController;
+  final Storage storage = Storage();
 
   @override
   void initState() {
@@ -74,7 +76,6 @@ class _UsersScreenState extends State<UsersScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Poner un textfiled para buscar y los resultados
     return Scaffold(
       body: ModalProgressHUD(
         inAsyncCall: _showSpinner,
@@ -93,7 +94,6 @@ class _UsersScreenState extends State<UsersScreen> {
                     padding:  const EdgeInsets.fromLTRB(6.0, 0.0, 6.0, 16.0),
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        // Foreground color
                         foregroundColor: Theme.of(context).colorScheme.onPrimary, 
                         backgroundColor: const Color.fromARGB(255, 180, 50, 87),
                       ).copyWith(elevation: ButtonStyleButton.allOrNull(0.0)),
@@ -191,14 +191,60 @@ class _UsersScreenState extends State<UsersScreen> {
   }
 
   Widget _getItems(BuildContext context, QueryDocumentSnapshot<Map<String, dynamic>> user, String usersSearched){
+   Widget? icon; 
+   if(user["image"] != ""){
+      icon = _getPhoto(user["image"], 300.0);
+    }else{
+      icon = const Icon(Icons.perm_identity_outlined);
+    }
     if(user['email'] != loggedInUser.email){
       if(usersSearched == ""){
-        return _getAppCard(const Icon(Icons.perm_identity_outlined),user, Colors.black);
+        return _getAppCard(icon,user, Colors.black);
       }else{
         if(user['email'].contains(usersSearched)){
-          return _getAppCard(const Icon(Icons.perm_identity_outlined),user, Colors.black);
+          return _getAppCard(icon,user, Colors.black);
         }else{return Container(height: 0.0,);}
       }
     }else{return Container(height: 0.0,);}
+  }
+
+  Widget _getPhoto(String name, double height){
+    return FutureBuilder(
+      future: storage.photoURL(name),
+      builder: (context, AsyncSnapshot<String> snapshot){
+        return snapshot.connectionState == ConnectionState.waiting ? 
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,    
+          children:<Widget>[
+            Container(
+              padding: const EdgeInsets.only(top: 100.0),
+              child: Center( 
+                child: Platform.isAndroid ? 
+                const CircularProgressIndicator() 
+                : const CupertinoActivityIndicator()
+              )
+            )
+          ]
+        ) : snapshot.hasData ? Center(
+            child:Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox (
+                height: height,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(5),
+                  child: Image.network(
+                      snapshot.data!,
+                      fit: BoxFit.cover
+                    )
+                ),
+              )
+            ]
+          )
+        )
+        : Container(height: 0.0,);
+      },
+    );
   }
 }

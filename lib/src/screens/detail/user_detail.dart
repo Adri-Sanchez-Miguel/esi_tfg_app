@@ -5,8 +5,7 @@ import 'package:esi_tfg_app/src/screens/detail/team_detail.dart';
 import 'package:esi_tfg_app/src/services/firestore_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
-import '../../services/storage_service.dart';
+import 'package:esi_tfg_app/src/services/storage_service.dart';
 
 class UserDetail extends StatelessWidget {
   final Storage storage = Storage();

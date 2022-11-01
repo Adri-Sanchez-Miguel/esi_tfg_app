@@ -74,7 +74,6 @@ class _HomeState extends State<Home> {
       );
     }
   }
- // Cambiar tamaño grupo
   Drawer getDrawer(BuildContext context){
     List<String>? split = _user?['email'].toString().split('@');
     String? email = split?.first;
@@ -106,7 +105,7 @@ class _HomeState extends State<Home> {
           height: 75.0,
           child: Image.asset('images/menthor_icon.png',),
         ),
-        applicationVersion: "Septiembre 2022",
+        applicationVersion: "Diciembre 2022",
         applicationLegalese: '\u{a9} Universidad de Castlla-La Mancha',
         aboutBoxChildren: <Widget>[
           const SizedBox(height: 5),
@@ -172,7 +171,6 @@ class _HomeState extends State<Home> {
         title: Text(description),
         onTap: (){
           Authentication().signOut();
-          //pushReplacement
           Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const WelcomeScreen()));
         }
       );

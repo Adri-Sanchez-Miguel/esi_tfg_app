@@ -208,7 +208,6 @@ class _PublicationDetailState extends State<PublicationDetail>{
       padding:  const EdgeInsets.fromLTRB(6.0, 0.0, 6.0, 16.0),
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
-          // Foreground color
           foregroundColor: Theme.of(context).colorScheme.onPrimary, 
           backgroundColor: const Color.fromARGB(255, 180, 50, 87),
         ).copyWith(elevation: ButtonStyleButton.allOrNull(0.0)),

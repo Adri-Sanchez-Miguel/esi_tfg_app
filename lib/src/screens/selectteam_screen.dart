@@ -121,8 +121,10 @@ class _SelectTeamState extends State<SelectTeam> {
 
   List<Widget> _widgetStudent(){
     return <Widget>[
-      const SizedBox(height: 10.0,),
+      const SizedBox(height: 5.0,), 
       const Text("Elige tu equipo:", style: TextStyle(fontSize: 25.0, fontWeight: FontWeight.w700, color: Color.fromARGB(255, 180, 50, 87)),),
+      const SizedBox(height: 10.0,), 
+      _getNameTeam(),
       const SizedBox(height: 20.0,),
       _getListViewTeams(),
       const SizedBox(height: 20.0,),   
@@ -207,6 +209,18 @@ class _SelectTeamState extends State<SelectTeam> {
         });
       }
     );
+  }
+
+  Widget _getNameTeam(){
+    if(_completed){
+      String equipo = _team!['name'].toString();
+      return Center(
+        child: Text(
+          "Equipo $equipo", style: const TextStyle(fontSize: 25.0,  fontWeight: FontWeight.bold),),
+      );
+    }else{
+      return Container(height:0.0);
+    }
   }
   
   void _createTeam() async{

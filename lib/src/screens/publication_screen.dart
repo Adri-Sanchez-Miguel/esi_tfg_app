@@ -279,13 +279,13 @@ class _PublicationsScreenState extends State<PublicationsScreen> {
 
   void _changeLike(bool liked, QueryDocumentSnapshot<Map<String, dynamic>> publication, Map<String, dynamic> likes) async{
     if(liked){
-      // quitar al usuario de la base de datos
+      // INFO: Quitar al usuario de la base de datos
       likes.remove(loggedInUser.email);
       await FirestoreService().update(document: publication.reference, collectionValues: {
         'likes': likes,
       });
     }else{
-      // añadir al usuario de la base de datos
+      // INFO: Añadir al usuario de la base de datos
       likes.addAll({
           loggedInUser.email! : loggedInUser.email
       });

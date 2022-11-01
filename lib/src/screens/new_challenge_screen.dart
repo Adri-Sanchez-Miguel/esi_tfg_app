@@ -17,20 +17,6 @@ class NuevoReto extends StatefulWidget {
   @override
   State<NuevoReto> createState() => _NuevoRetoState();
 }
-
-  // AL GENERARLOS -> Simplemente introducimos el
-  // string que queramos que sea su código qr y la
-  // fecha de caducidad del reto, a parte de la 
-  // visibilidad que tendrá el reto.
-  // UCLMoney -> Puntos que te dan cuando consigues
-  // retos.
-  // AL RECLAMARLOS -> La idea es que los perfiles 
-  // que a los que no vayan dirigido el reto puedan
-  // verlo y así ayudar a los que no lo tengan a 
-  // conseguirlo junto a los que estén en físico
-  // ENVIAR QR a correo electrónico del que crea el reto
-  // para que lo pueda imprimir (o guardar como imagen)
-  // Poner un pequeño pause al recargar la eliminación de publicaciones
 class _NuevoRetoState extends State<NuevoReto> {
   late TextEditingController _nameController, _descriptionController, _qrController;
   final GlobalKey<FormState> _formkey = GlobalKey<FormState>();
@@ -392,7 +378,7 @@ class _NuevoRetoState extends State<NuevoReto> {
   }
 
   void _createChallenge( String name, String description, String qr) async{
-    // A los mentorizados le cuestan todos los logros
+    // INFO: A los mentorizados le cuestan todos los logros
     // A los mentores le cuestan los logros de plata y oro
     // A los profesores le cuestan los logros de oro
     if((widget.user!["role"] != "profesor" && widget.user!["role"] != "mentor") 

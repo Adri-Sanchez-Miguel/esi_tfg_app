@@ -164,16 +164,14 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
       Map<String, dynamic> completed = user['challenges_completed'];
       if(!completed.containsValue(challenge.reference)){
         if(challenge['degree'] == user['degree'] || challenge['degree']=="todos"){
-          if(challenge['users_visibility'] == user['role'] || challenge['users_visibility']=="todos"){
-            switch(challenge['level']){
-              case 1:
-                return _getAppCard(Image.asset('images/bronze.png'), challenge, const Color.fromARGB(255, 114, 64, 7));
-              case 5:
-                return _getAppCard(Image.asset('images/silver.png'), challenge, Colors.grey);
-              default:
-                return _getAppCard(Image.asset('images/gold.png'),challenge, Colors.yellow[700]);
-            }
-          }else{return Container(height: 0.0,);}
+          switch(challenge['level']){
+            case 1:
+              return _getAppCard(Image.asset('images/bronze.png'), challenge, const Color.fromARGB(255, 114, 64, 7));
+            case 5:
+              return _getAppCard(Image.asset('images/silver.png'), challenge, Colors.grey);
+            default:
+              return _getAppCard(Image.asset('images/gold.png'),challenge, Colors.yellow[700]);
+          }
         }else{return Container(height: 0.0,);}
       }else{return Container(height: 0.0,);}
     }else{return Container(height: 0.0,);}

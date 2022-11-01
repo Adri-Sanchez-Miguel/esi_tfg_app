@@ -1,16 +1,14 @@
 # esi_tfg_app
 
-A new Flutter project.
+Soy Adrián Sánchez-Miguel Ortega, y este es mi proyecto TFG para la carrera de Ingeniería Informática cursada en la Universidad de Castilla-La Mancha.
 
-## Getting Started
+## ¿Qué necesitas para ejecutar la aplicación?
 
-This project is a starting point for a Flutter application.
+Solo necesitas un dispositivo móvil con Android o iOS como sistemas operativos. Se eligen estos dos sistemas al ser una aplicación orientada a móviles, y estar Android e iOS en más del [99,2% de los dispositivos](https://gs.statcounter.com/os-market-share/mobile/worldwide) utilizados en todo el mundo. 
 
-A few resources to get you started if this is your first Flutter project:
+- La versión mínima del sdk Android en la que la aplicación funciona es la 20. 
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+- La versión mínima de iOS en la que la aplicación funciona es iOS 8.0
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## ¿Qué se ha utilizado para desarrollar el TFG?
+Se ha utilizado Flutter, un SDK o kit de desarrollo móvil que permite crear aplicaciones multiplataforma que utliza como lenguaje de desarrollo [Dart](https://dart.dev/). Para más información sobre Flutter, puede ver la [documentación online](https://docs.flutter.dev/), del SDK, donde hay tutoriales, guías y una API de referencias.

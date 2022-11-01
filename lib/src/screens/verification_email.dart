@@ -57,7 +57,7 @@ class _VerifyEmailState extends State<VerifyEmail> {
                   style: TextStyle(fontSize: 35.0, fontWeight: FontWeight.w700, color: Color.fromARGB(255, 180, 50, 87)))),
               const SizedBox(height: 20.0),
               const Center(
-                child: Text("Haga click en el botón de enviar para mandar un correo a su cuenta que le permita cambiar la contraseña que se le ha asignado automáticamente (compruebe también la carpeta de spam de su correo).",
+                child: Text("Haga click en el botón de enviar para mandar un correo a su cuenta que le permita cambiar la contraseña que se le ha asignado automáticamente (compruebe también la carpeta de spam de su correo, suele tardar un minuto en llegar).",
                   style: TextStyle(fontSize: 17.0, fontWeight: FontWeight.bold),
                 )
               ),          

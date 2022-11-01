@@ -46,7 +46,7 @@ class _SelectDegreeState extends State<SelectDegree> {
               const Text("Elige tu titulación:", style: TextStyle(fontSize: 25.0, fontWeight: FontWeight.w700, color: Color.fromARGB(255, 180, 50, 87)),),
               const SizedBox(height: 10.0,), 
               _getNameDegree(),
-              const SizedBox(height: 10.0,), 
+              const SizedBox(height: 15.0,), 
               _selectDegree(),
               const SizedBox(height: 20.0,),
               _getBack()
@@ -123,11 +123,16 @@ class _SelectDegreeState extends State<SelectDegree> {
 
   Widget _getNameDegree(){
     if(_completed){
-      return Center(child: Text(_degree!['titulo'], style: const TextStyle(fontSize: 25.0,  fontWeight: FontWeight.bold)));
+      String carrera = _degree!['titulo'];
+      return Center(
+        child: Text(
+          "Carrera elegida:\n $carrera", style: const TextStyle(fontSize: 25.0,  fontWeight: FontWeight.bold),)
+      );
     }else{
       return Container(height:0.0);
     }
   }
+
   Widget _getBack(){
     if(_completed){
       return AppButton(

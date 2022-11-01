@@ -46,7 +46,6 @@ class _BottomNavState extends State<BottomNav> {
           child: PopupMenuButton(
             icon: const Icon(Icons.add, color:Colors.white, size: 40.0,),
             itemBuilder: (itemContext) => <PopupMenuEntry<Widget>>[
-              // hacer esto un método
               PopupMenuItem(
                 child: Center(
                   child:TextButton(

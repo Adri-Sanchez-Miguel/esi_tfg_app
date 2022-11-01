@@ -84,7 +84,6 @@ class _RegistrationScreenState extends State<RegistrationScreen>{
                     children: <Widget>[
                       Padding(padding: const EdgeInsets.symmetric(horizontal: 10.0),
                       child: Text('ROL: $_showString', style: const TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),),),
-                      //_getStudentRole(),
                       _getRole(),
                       ]
                     ),

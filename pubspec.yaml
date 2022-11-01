@@ -50,6 +50,9 @@ dependencies:
   firebase_storage: ^10.3.9
   introduction_screen: ^3.0.2
   cached_network_image: ^3.2.2
+  screenshot: ^1.2.3
+  image_gallery_saver: ^1.7.1
+  permission_handler: ^10.2.0
 
 dev_dependencies:
   flutter_test:

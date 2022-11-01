@@ -6,7 +6,7 @@ class Bloc with Validators{
   final _emailController = BehaviorSubject<String>();
   final _passwordController = BehaviorSubject<String>();
 
-  //Validamos que el email y la contraseña cumplan las condiciones puestas en validators
+  //INFO: Validamos que el email y la contraseña cumplan las condiciones puestas en validators
   Stream<String> get email => _emailController.stream.transform(validateEmail);
   Stream<String> get password => _passwordController.stream.transform(validatePassword);
   Stream<bool> get submitValid => Rx.combineLatest2(email, password, (a, b) => true);
@@ -30,7 +30,7 @@ class Bloc with Validators{
     _passwordController.value = "";
   }
 
-  // Para liberar recursos y memoria
+  // INFO: Para liberar recursos y memoria
   dispose(){
     _emailController.close();
     _passwordController.close();

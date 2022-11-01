@@ -21,22 +21,6 @@ class NuevoMensaje extends StatefulWidget {
   State<NuevoMensaje> createState() => _NuevoMensajeState();
 }
 
-// Mentorizados: habilitado para tutores y mentores, pero no para mentorizados
-// Mentores: limitar también 
-// Cambiar números por letras
-// Cuidado con los tiempos de borrado
-// Borrar publicación para profesores y permitir borrar usuarios (sin eliminar publicaciones)
-// Poner fotos tanto para reclamar retos como en los mensajes.
-// Cambiar Retos completados en el perfil por el 
-// número de retos conseguidos.
-// Botón inhabilitar cuenta
-// Poner error usuario habilitado
-// Eliminar foto de Storage cuando se elimina la publicación
-// Poner botón por si se quiere otra foto
-// Poner opción para poner qr manualmente con el código
-// Para los logros disponibles que son para todos, foto o mensaje obligatorio
-// Poner imagen chiquitita (o icono) en el muro
-// Incorrect use of ParentDataWidget
 class _NuevoMensajeState extends State<NuevoMensaje> {
   late TextEditingController _titleController, _messageController;
   String _role = "", _decider="", _degreeString = "",_showStringRol = "", _showStringDegree  = "", _imageName = "";
@@ -310,7 +294,6 @@ class _NuevoMensajeState extends State<NuevoMensaje> {
     }
   }
 
-  /// Get from Camera
   void _hazFoto() async {
     XFile? pickedFile = await ImagePicker().pickImage(
       source: ImageSource.camera,
