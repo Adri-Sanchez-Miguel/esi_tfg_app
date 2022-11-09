@@ -92,7 +92,7 @@ class _HomeState extends State<Home> {
         Padding(padding: const EdgeInsets.all(20.0),
           child: Text(email!, style: const TextStyle(fontSize: 20.0, fontWeight: FontWeight.w500),)),
         Padding(padding: const EdgeInsets.symmetric(horizontal: 20.0),
-          child: Text("Nivel: $status"),),
+          child: Text("Experiencia: $status px"),),
         Padding(padding: const EdgeInsets.symmetric(horizontal: 20.0),
           child: Text("Monedas: $coins"),),
         const Divider()

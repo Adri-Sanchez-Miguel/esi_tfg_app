@@ -31,9 +31,10 @@ class UserDetail extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,    
+              Wrap(
+                direction: Axis.horizontal,
+                alignment: WrapAlignment.center,
+                crossAxisAlignment: WrapCrossAlignment.center, 
                 children:<Widget>[
                   user!["image"] != "" ? _getPhoto(user!["image"], 100.0): const Icon(Icons.person, size: 100.0,),
                   Padding(
@@ -66,7 +67,7 @@ class UserDetail extends StatelessWidget {
                     Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 10.0) ,
                     child: Center(
-                      child: Text(" ($status)", style: const TextStyle(color: Color.fromARGB(255, 180, 50, 87),fontSize: 25.0, fontWeight: FontWeight.w700)),
+                      child: Text(" ($status px)", style: const TextStyle(color: Color.fromARGB(255, 180, 50, 87),fontSize: 25.0, fontWeight: FontWeight.w700)),
                     ),
                   )
                 ]
@@ -95,11 +96,7 @@ class UserDetail extends StatelessWidget {
     }if(status > 500){
       return const Text("Experto", style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.w500),);
     }if(status > 200){
-      return const Text("Senior", style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.w500),);
-    }if(status > 100){
-      return const Text("Junior", style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.w500),);
-    }if(status > 40){
-      return const Text("Becario", style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.w500),);
+      return const Text("Intermedio", style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.w500),);
     }else{
       return const Text("Principiante", style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.w500),);
     }

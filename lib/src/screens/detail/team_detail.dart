@@ -85,7 +85,7 @@ class _TeamDetailState extends State<TeamDetail> {
                   const SizedBox(height: 10.0,),
                   const Divider(thickness: 1.0, color: Colors.black,),            
                   const SizedBox(height: 10.0,),
-                  const Text("Mentorizazdos:", style: TextStyle(fontSize: 25.0, fontWeight: FontWeight.w700),),
+                  const Text("Mentorizados:", style: TextStyle(fontSize: 25.0, fontWeight: FontWeight.w700),),
                   studentsMap.isNotEmpty ? Flexible(
                     fit: FlexFit.loose,
                     child: SizedBox(

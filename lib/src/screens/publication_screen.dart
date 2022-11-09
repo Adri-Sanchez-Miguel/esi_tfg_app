@@ -221,7 +221,7 @@ class _PublicationsScreenState extends State<PublicationsScreen> {
             ), 
             PopupMenuItem(
               child:  Center(
-                child: liked ? const Text("Dar like") : const Text("Quitar like")
+                child: liked ? const Text("Quitar like") : const Text("Dar like")
               ), 
               onTap: () {
                 setState(() {
