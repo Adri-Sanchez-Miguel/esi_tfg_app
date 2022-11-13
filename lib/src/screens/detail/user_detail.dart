@@ -54,7 +54,7 @@ class UserDetail extends StatelessWidget {
               const Divider(thickness: 1.0, color: Colors.black,),            
               const SizedBox(height: 10.0,), 
               const Text("Rol:", style: TextStyle(fontSize: 25.0, fontWeight: FontWeight.w700),),
-              Text(user!['role'], style: const TextStyle(fontSize: 17.0, fontWeight: FontWeight.w500),),
+              Text(user!['role'].toString().toUpperCase(), style: const TextStyle(fontSize: 17.0, fontWeight: FontWeight.w500),),
               const SizedBox(height: 10.0,),
               const Divider(thickness: 1.0, color: Colors.black,),            
               const SizedBox(height: 10.0,),
@@ -91,14 +91,28 @@ class UserDetail extends StatelessWidget {
   }
 
   Widget _getStatus(int status){
-    if(status > 1000){
+    if(status > 10000){
       return const Text("Leyenda", style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.w500),);
+    }if(status > 5000){
+      return const Text("Experto 4", style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.w500),);
+    }if(status > 3000){
+      return const Text("Experto 3", style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.w500),);
+    }if(status > 2000){
+      return const Text("Experto 2", style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.w500),);
+    }if(status > 1200){
+      return const Text("Experto 1", style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.w500),);
+    }if(status > 800){
+      return const Text("Intermedio 3", style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.w500),);
     }if(status > 500){
-      return const Text("Experto", style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.w500),);
+      return const Text("Intermedio 2", style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.w500),);
     }if(status > 200){
-      return const Text("Intermedio", style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.w500),);
+      return const Text("Intermedio 1", style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.w500),);
+    }if(status > 100){
+      return const Text("Principiante 3", style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.w500),);
+    }if(status > 40){
+      return const Text("Principiante 2", style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.w500),);
     }else{
-      return const Text("Principiante", style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.w500),);
+      return const Text("Principiante 1", style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.w500),);
     }
   }
 
@@ -153,7 +167,7 @@ class UserDetail extends StatelessWidget {
             child: SizedBox(
               height: decider ? 200.0: 60.0,
               child:ListView(
-                children: decider ? _getTeacherItems(context, messages) : _getChallengeItems(messages),
+                children: decider ? _getTeacherItems(context, messages) : _getChallengeItems(context, messages),
               )
             )
           );
@@ -189,40 +203,127 @@ class UserDetail extends StatelessWidget {
     return messageItems;
   }
 
-  List<Widget> _getChallengeItems(dynamic messages){
-    List<Widget> messageItems = [];
+  List<Widget> _getChallengeItems(BuildContext context, dynamic messages){
+    List<Widget> messageItems = [], bronzeItems = [], silverItems = [], goldItems = [];
     int goldCount = 0, silverCount = 0, bronzeCount = 0;
     Map<String, dynamic> challengesMap = user!['challenges_completed'];
     Iterable<dynamic> challenges = challengesMap.values;
     for(var challenge in challenges){
       var selectedChallenge = messages.firstWhere((element) => element.reference == challenge);
+      String name = selectedChallenge["name"];
       switch(selectedChallenge["level"]){
         case 1:
           bronzeCount +=1;
+          bronzeItems.add(
+            Padding(
+              padding: const EdgeInsets.only(left: 15.0, bottom: 15.0),
+              child:Text("Reto: $name", style: const TextStyle(fontSize: 20.0),)
+            )
+          );
           break;
         case 5:
           silverCount +=1;
+          silverItems.add(
+            Padding(
+              padding: const EdgeInsets.only(left: 15.0, bottom: 15.0),
+              child:Text("Reto: $name", style: const TextStyle(fontSize: 20.0),)
+            )
+          );
           break;
         case 20:
           goldCount +=1;
+          goldItems.add(
+            Padding(
+              padding: const EdgeInsets.only(left: 15.0, bottom: 15.0),
+              child:Text("Reto: $name", style: const TextStyle(fontSize: 20.0),)
+            )
+          );
           break;
       }
     }
     messageItems.add(
       Center(
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
+        child: Wrap(
+          direction: Axis.horizontal,
+          alignment: WrapAlignment.center,
+          crossAxisAlignment: WrapCrossAlignment.center, 
           children: <Widget>[
-            Image.asset('images/gold.png',height: 50.0),
-            Text(goldCount.toString(), style: const TextStyle(fontSize: 17.0, fontWeight: FontWeight.w500),),
-            Image.asset('images/silver.png',height: 50.0),
-            Text(silverCount.toString(), style: const TextStyle(fontSize: 17.0, fontWeight: FontWeight.w500),),
-            Image.asset('images/bronze.png',height: 50.0),
-            Text(bronzeCount.toString(), style: const TextStyle(fontSize: 17.0, fontWeight: FontWeight.w500),),        
+            Image.asset('images/gold.png',height: 40.0),
+            TextButton(
+              style: TextButton.styleFrom(
+                foregroundColor: const Color.fromARGB(255, 209, 73, 111),
+                textStyle: const TextStyle(fontSize: 20),
+              ),
+              onPressed: () {
+                _getModalSheet(context, goldItems);
+              },
+              child:Text(goldCount.toString()),
+            ),
+            Image.asset('images/silver.png',height: 40.0),
+            TextButton(
+              style: TextButton.styleFrom(
+                foregroundColor: const Color.fromARGB(255, 209, 73, 111),
+                textStyle: const TextStyle(fontSize: 20),
+              ),
+              onPressed: () {
+                 _getModalSheet(context, silverItems);
+              },
+              child:Text(silverCount.toString()),
+            ),
+            Image.asset('images/bronze.png',height: 40.0),
+            TextButton(
+              style: TextButton.styleFrom(
+                foregroundColor: const Color.fromARGB(255, 209, 73, 111),
+                textStyle: const TextStyle(fontSize: 20),
+              ),
+              onPressed: () {
+                _getModalSheet(context, bronzeItems);
+              },
+              child:Text(bronzeCount.toString()),        
+            )
           ]
         )
       )
     );
     return messageItems;
+  }
+
+  Future<dynamic> _getModalSheet(BuildContext context, List <Widget> challenges){
+    return showModalBottomSheet(
+      context: context, 
+      builder: (BuildContext context){
+        return SizedBox(
+          height: 400.0,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[ 
+              const SizedBox(height: 20.0,),
+              const Center(child:Text("Retos conseguidos", style: TextStyle(fontSize: 35.0, fontWeight: FontWeight.w700),),),
+              const SizedBox(height: 20.0,),
+              Flexible(
+                child: Padding(
+                  padding: const EdgeInsets.all(5.0),
+                  child:Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: Colors.grey, width: 2.0)
+                    ),
+                    child:ListView.builder(
+                      physics:  const AlwaysScrollableScrollPhysics(),
+                      addRepaintBoundaries: true,
+                      itemCount: challenges.length,
+                      itemBuilder: (context, index) =>
+                        challenges[index]
+                    )
+                  )
+                )
+              )
+            ]
+          )
+        );
+      }
+    );
   }
 }

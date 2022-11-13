@@ -27,6 +27,7 @@ Future<void> main() async {
       Provider(
         create: (context) => Bloc(),
         child: MaterialApp(
+          debugShowCheckedModeBanner: false,
           home: const WelcomeScreen(),
           theme: ThemeData(
             appBarTheme: const AppBarTheme(backgroundColor: Color.fromARGB(255, 180, 50, 87)),

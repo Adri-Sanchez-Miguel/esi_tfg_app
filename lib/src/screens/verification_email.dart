@@ -78,6 +78,7 @@ class _VerifyEmailState extends State<VerifyEmail> {
                 colorText: canResendEmail ?  Colors.white : Colors.white54
               ),
               AppButton(
+                key: const ValueKey('LogoutKey'),
                 color: const Color.fromARGB(255, 180, 50, 87), 
                 onPressed: ()async{
                   Authentication().signOut();

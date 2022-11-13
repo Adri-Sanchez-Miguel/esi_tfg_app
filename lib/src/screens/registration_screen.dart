@@ -104,6 +104,7 @@ class _RegistrationScreenState extends State<RegistrationScreen>{
       stream: bloc.email,
       builder: (context, snapshot) {
         return AppTextField(
+          key: const ValueKey('emailSignUpField'),
           controller: _emailController,
           keyboardType: TextInputType.emailAddress,
           focusNode: _focusNode,

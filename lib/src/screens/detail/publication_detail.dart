@@ -334,7 +334,7 @@ class _PublicationDetailState extends State<PublicationDetail>{
         TextSpan(
           text: '', 
           children: <TextSpan>[
-            TextSpan(text: 'Uusario: $username', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18.0)),
+            TextSpan(text: 'Usuario: $username', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18.0)),
           ],
         ),
       ),

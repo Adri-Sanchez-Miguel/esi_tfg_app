@@ -204,6 +204,7 @@ class _HomeState extends State<Home> {
               backgroundColor: const Color.fromARGB(255, 180, 50, 87),
             ),
             drawer: Drawer(
+              key: const ValueKey('drawer'),
               child: getDrawer(context),
             ),
             body: BottomNav(user: _user,),

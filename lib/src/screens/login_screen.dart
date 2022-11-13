@@ -154,6 +154,7 @@ class _LoginScreenState extends State<LoginScreen>{
       stream: bloc.email,
       builder: (context, snapshot) {
         return AppTextField(
+          key: const ValueKey('emailSignInField'),
           controller: _emailController,
           keyboardType: TextInputType.emailAddress,
           focusNode: _focusNode,
@@ -172,6 +173,7 @@ class _LoginScreenState extends State<LoginScreen>{
       stream: bloc.password,
       builder: (context, snapshot) {
         return AppTextField(
+          key: const ValueKey('passwordSignInField'),
           controller: _passwordController,
           hint: "Tu contraseña",
           label: "Contraseña",
