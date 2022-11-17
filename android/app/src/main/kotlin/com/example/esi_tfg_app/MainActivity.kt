@@ -1,4 +1,4 @@
-package com.example.esi_tfg_app
+package com.menthor.esi_tfg_app
 
 import io.flutter.embedding.android.FlutterActivity
 

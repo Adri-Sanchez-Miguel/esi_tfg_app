@@ -68,7 +68,7 @@ class DefaultFirebaseOptions {
     projectId: 'programa-menthor',
     storageBucket: 'programa-menthor.appspot.com',
     iosClientId: '44398785703-v76f8u7g7alujjlra1khpk2r8f3b1v22.apps.googleusercontent.com',
-    iosBundleId: 'com.example.esiTfgApp',
+    iosBundleId: 'com.menthor.esiTfgApp',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
@@ -78,6 +78,6 @@ class DefaultFirebaseOptions {
     projectId: 'programa-menthor',
     storageBucket: 'programa-menthor.appspot.com',
     iosClientId: '44398785703-v76f8u7g7alujjlra1khpk2r8f3b1v22.apps.googleusercontent.com',
-    iosBundleId: 'com.example.esiTfgApp',
+    iosBundleId: 'com.menthor.esiTfgApp',
   );
 }

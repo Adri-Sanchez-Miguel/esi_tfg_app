@@ -49,6 +49,10 @@
 		<false/>
 		<key>io.flutter.embedded_views_preview</key>
 		<true/>
+		<key>LSApplicationQueriesSchemes</key>
+			<array>
+			<string>https://github.com/Adri-Sanchez-Miguel/Politica-de-privacidad/blob/main/POLITICA-DE-PRIVACIDAD.md</string>
+			</array>
 		<key>NSCameraUsageDescription</key>
 		<string>This app needs camera access to scan QR codes or make photos</string>
 	</dict>

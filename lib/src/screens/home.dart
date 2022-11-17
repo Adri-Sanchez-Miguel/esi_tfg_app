@@ -15,6 +15,7 @@ import 'package:flutter/material.dart';
 import 'package:esi_tfg_app/src/services/authentication.dart';
 import 'package:esi_tfg_app/src/widgets/app_bottomnav.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class Home extends StatefulWidget {
   static const String routeName = "/home"; 
@@ -66,12 +67,7 @@ class _HomeState extends State<Home> {
         });
       }
     }catch(e){
-      Fluttertoast.showToast(
-        msg: e.toString(),
-        fontSize: 20,
-        gravity: ToastGravity.CENTER,
-        backgroundColor: Colors.red[400]
-      );
+      _toast(e.toString(), Colors.red[400]);
     }
   }
   Drawer getDrawer(BuildContext context){
@@ -121,6 +117,20 @@ class _HomeState extends State<Home> {
                     style: TextStyle(color: Colors.blue)),
               ],
             ),
+          ),
+          const SizedBox(height: 10.0,),
+          ElevatedButton( 
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red[400]),
+            child: const Text("Política de privacidad"),
+            onPressed: () async {
+              Uri url = Uri.parse("https://github.com/Adri-Sanchez-Miguel/Politica-de-privacidad/blob/main/POLITICA-DE-PRIVACIDAD.md");              
+              var urllaunchable = await canLaunchUrl(url);
+              if(urllaunchable){
+                await launchUrl(url);
+              }else{
+                _toast("URL no accesible.", Colors.red[400]);
+              }
+            },
           ),
         ],
         icon: const Icon(Icons.info),
@@ -233,5 +243,14 @@ class _HomeState extends State<Home> {
         )
       );
     }
+  }
+
+  Future<bool?> _toast(String message, Color? color){
+    return Fluttertoast.showToast(
+      msg: message,
+      fontSize: 20,
+      gravity: ToastGravity.CENTER,
+      backgroundColor: color
+    );
   }
 }
