@@ -33,7 +33,7 @@ class IntroductionPages extends StatelessWidget {
       ),
       PageViewModel(
         title: "¡A por los retos!",
-        body: "Haz click en + para crear un nuevo reto o reclamar otros que puedes conseguir a través de un código QR. Estos códigos podrán ser escaneados en lugares específicos o pidiéndolos a otros usuarios. Para algunos retos, solo tendrás que subir una foto que asegure haber completado el reto ¡sin necesidad de escanear un QR!",
+        body: "Haz click en + para crear un nuevo reto o reclamar otros de la ventana 'Mis retos' que puedes conseguir a través de un código QR. Estos códigos podrán ser escaneados en lugares específicos o pidiéndolos a otros usuarios que los podrán encontrar en su ventana de 'Otros retos'. Para algunos retos, solo tendrás que subir una foto que asegure haber completado el reto ¡sin necesidad de escanear un QR!",
         image: Center(
           child: Row(
             mainAxisSize: MainAxisSize.min,

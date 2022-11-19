@@ -60,16 +60,45 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
   @override
   Widget build(BuildContext context) {
     if(_users!= null){
-      return Scaffold(
-        body: ModalProgressHUD(
-          inAsyncCall: _showSpinner,
-          child: SafeArea(
-            child: Column(
-              children: <Widget>[
-                _getChallenges(),
-              ],
+      return DefaultTabController(
+        length: 2,
+        child: Scaffold(
+          appBar: AppBar(
+            elevation: 10.0,
+            toolbarHeight: 1,
+            automaticallyImplyLeading: false,
+            bottom: const TabBar(
+              indicatorColor: Colors.white,
+              indicatorWeight: 4,
+              tabs: [
+                Tab(icon: Icon(Icons.star),text: "Mis retos",),
+                Tab(icon: Icon(Icons.double_arrow),text: "Otros retos",)
+              ])
             ),
-          ),
+          body: TabBarView(
+            children: [
+              ModalProgressHUD(
+                inAsyncCall: _showSpinner,
+                child: SafeArea(
+                  child: Column(
+                    children: <Widget>[
+                      _getChallenges(true),
+                    ],
+                  ),
+                ),
+              ),
+              ModalProgressHUD(
+                inAsyncCall: _showSpinner,
+                child: SafeArea(
+                  child: Column(
+                    children: <Widget>[
+                      _getChallenges(false),
+                    ],
+                  ),
+                ),
+              )
+            ]
+          )
         )
       );
     }else{
@@ -77,7 +106,7 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
     }
   }
 
-  Widget _getChallenges(){
+  Widget _getChallenges(bool decider){
     return FutureBuilder<QuerySnapshot<Map<String, dynamic>>>(
       future: FirestoreService().getMessage(collectionName: "challenges"),
       builder: (context, snapshot){
@@ -100,7 +129,7 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
             child: RefreshIndicator(
               onRefresh: () async{
                 setState((){
-                  _getChallenges();
+                  _getChallenges(decider);
                 });
               },
               child: ListView.builder(
@@ -108,13 +137,47 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
                 addRepaintBoundaries: true,
                 itemCount: snapshot.data!.docs.length,
                 itemBuilder: (context, index) =>
-                  _getItems(context, snapshot.data!.docs[index]),
+                  _getItems(context, snapshot.data!.docs[index], decider),
               )
             )
           )
         : Container(height: 0.0,);
       },
     );
+  }
+
+  Widget _getItems(BuildContext context, QueryDocumentSnapshot<Map<String, dynamic>> challenge, bool decider){
+    if(challenge['end_date'].toDate().isAfter(DateTime.now())){
+      QueryDocumentSnapshot<Map<String, dynamic>> user = _users!.docs.firstWhere((element) => element["email"] == loggedInUser.email);
+      Map<String, dynamic> completed = user['challenges_completed'];
+      if(!completed.containsValue(challenge.reference)){
+        if(challenge['degree'] == user['degree'] || challenge['degree']=="todos"){
+          if(decider){
+            if(challenge['users_visibility'] == user['role'] || challenge['users_visibility']=="todos"){
+              switch(challenge['level']){
+                case 1:
+                  return _getAppCard(Image.asset('images/bronze.png'), challenge, const Color.fromARGB(255, 114, 64, 7));
+                case 5:
+                  return _getAppCard(Image.asset('images/silver.png'), challenge, Colors.grey);
+                default:
+                  return _getAppCard(Image.asset('images/gold.png'),challenge, Colors.yellow[700]);
+              } 
+            }else{return Container(height: 0.0,);}
+          }else{
+            if(challenge['users_visibility'] != user['role'] && challenge['users_visibility']!="todos"){
+              switch(challenge['level']){
+                case 1:
+                  return _getAppCard(Image.asset('images/bronze.png'), challenge, const Color.fromARGB(255, 114, 64, 7));
+                case 5:
+                  return _getAppCard(Image.asset('images/silver.png'), challenge, Colors.grey);
+                default:
+                  return _getAppCard(Image.asset('images/gold.png'),challenge, Colors.yellow[700]);
+              } 
+            }else{return Container(height: 0.0,);}
+          }
+        }else{return Container(height: 0.0,);}
+      }else{return Container(height: 0.0,);}
+    }else{return Container(height: 0.0,);}
   }
 
   Widget _getAppCard(Widget? icon, QueryDocumentSnapshot<Map<String, dynamic>> challenge, Color? colorDecoration){
@@ -156,24 +219,5 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
         Navigator.push(context, MaterialPageRoute(builder: (context) => ChallengeDetail(challenge: challenge, user: widget.user)));
       }
     );
-  }
-
-  Widget _getItems(BuildContext context, QueryDocumentSnapshot<Map<String, dynamic>> challenge){
-    if(challenge['end_date'].toDate().isAfter(DateTime.now())){
-      QueryDocumentSnapshot<Map<String, dynamic>> user = _users!.docs.firstWhere((element) => element["email"] == loggedInUser.email);
-      Map<String, dynamic> completed = user['challenges_completed'];
-      if(!completed.containsValue(challenge.reference)){
-        if(challenge['degree'] == user['degree'] || challenge['degree']=="todos"){
-          switch(challenge['level']){
-            case 1:
-              return _getAppCard(Image.asset('images/bronze.png'), challenge, const Color.fromARGB(255, 114, 64, 7));
-            case 5:
-              return _getAppCard(Image.asset('images/silver.png'), challenge, Colors.grey);
-            default:
-              return _getAppCard(Image.asset('images/gold.png'),challenge, Colors.yellow[700]);
-          }
-        }else{return Container(height: 0.0,);}
-      }else{return Container(height: 0.0,);}
-    }else{return Container(height: 0.0,);}
   }
 }

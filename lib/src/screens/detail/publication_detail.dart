@@ -58,6 +58,8 @@ class _PublicationDetailState extends State<PublicationDetail>{
   @override
   Widget build(BuildContext context) {
     if(_publications != null){
+      List<String> splitDate = widget.publication['creation_date'].toDate().toString().split(' ');
+      String date = splitDate.first;
       Map<String, dynamic> likes = _refreshedPublication!['likes'];
       int numLikes = likes.length;
       return Scaffold(
@@ -78,8 +80,8 @@ class _PublicationDetailState extends State<PublicationDetail>{
                   const Text("Usuario:", style: TextStyle(fontSize: 25.0, fontWeight: FontWeight.w700),),
                   Text(widget.publication['user'], style: const TextStyle(fontSize: 17.0, fontWeight: FontWeight.w500),),
                   const SizedBox(height: 20.0,), 
-                  const Text("Conseguido el:", style: TextStyle(fontSize: 25.0, fontWeight: FontWeight.w700),),
-                  Text(widget.publication['creation_date'].toDate().toString(), style: const TextStyle(fontSize: 17.0, fontWeight: FontWeight.w500),),
+                  const Text("Publicado el:", style: TextStyle(fontSize: 25.0, fontWeight: FontWeight.w700),),
+                  Text(date, style: const TextStyle(fontSize: 17.0, fontWeight: FontWeight.w500),),
                   const SizedBox(height: 15.0,),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.center,

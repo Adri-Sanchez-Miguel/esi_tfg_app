@@ -26,6 +26,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
             Flexible(child: Image.asset('images/menthor_logo.png')),
             const SizedBox(height: 75.0,),
             AppButton(
+              icon: Icons.account_circle,
               key: const ValueKey('emailSignInOpener'),
               colorText:Colors.white,
               color: const Color.fromARGB(255, 180, 50, 87),
@@ -33,6 +34,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               onPressed: (){return Navigator.pushNamed(context, '/login');}
             ),
             AppButton(
+              icon: Icons.add_circle,
               key: const ValueKey('emailSignUpOpener'),
               colorText:Colors.white,
               color: const Color.fromRGBO(179, 0, 51, 1.0),

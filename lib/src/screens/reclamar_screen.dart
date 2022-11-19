@@ -118,23 +118,27 @@ class _ReclamarLogroState extends State<ReclamarLogro>{
             _challenge = snap.docs.firstWhere((element) => element["qr_key"] == barcode!.code);
             Map<String, dynamic> challengesCompleted = widget.user!['challenges_completed'];
             if(!challengesCompleted.containsValue(_challenge!.reference)){
-              String name = _challenge!["name"];
-              int level = _challenge!["level"];
+              if(_challenge!['users_visibility'] == widget.user!['role'] || _challenge!['users_visibility']=="todos"){
+                String name = _challenge!["name"];
+                int level = _challenge!["level"];
 
-              _toast("¡Enhorabuena! Reto '$name' conseguido. +$level coins", Colors.green[800]);
-              challengesCompleted.addAll({
-                _challenge!.reference.path : _challenge!.reference,
-              });
+                _toast("¡Enhorabuena! Reto '$name' conseguido. +$level coins", Colors.green[800]);
+                challengesCompleted.addAll({
+                  _challenge!.reference.path : _challenge!.reference,
+                });
 
-              await FirestoreService().update(document: widget.user!.reference, collectionValues: {
-                'challenges_completed': challengesCompleted,
-                'coins': widget.user!["coins"]+_challenge!["level"],
-                'status' : widget.user!["status"]+_challenge!["level"]
-              }); 
-              _createPublication(widget.user!["email"]);
-              await Future.delayed(const Duration(milliseconds: 100)).then((_) {
-                Navigator.popAndPushNamed(context, "/home");
-              });
+                await FirestoreService().update(document: widget.user!.reference, collectionValues: {
+                  'challenges_completed': challengesCompleted,
+                  'coins': widget.user!["coins"]+_challenge!["level"],
+                  'status' : widget.user!["status"]+_challenge!["level"]
+                }); 
+                _createPublication(widget.user!["email"]);
+                await Future.delayed(const Duration(milliseconds: 100)).then((_) {
+                  Navigator.popAndPushNamed(context, "/home");
+                });
+              }else{
+                _toast("Este reto no está registrado para tu rol.", Colors.red[400]);
+              }
             }else{
               _toast("Código no registrado o que ya has reclamado antes", Colors.red[400]);
             }
