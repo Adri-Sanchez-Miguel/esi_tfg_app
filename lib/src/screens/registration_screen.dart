@@ -135,18 +135,23 @@ class _RegistrationScreenState extends State<RegistrationScreen>{
             else{
               _email = bloc.submitEmail();
               try {
-                setSpinnersStatus(true);
-                auth= await Authentication().createUser(email: _email, password: _createPassword()).then((_){
-                  _createUser(_emailController.text);
-                  _createInitialPublication(_emailController.text);
-                  _createNotification();
-                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const VerifyEmail()));
-                  _emailController.text = "";
-                  bloc.changeEmail;
-                  FocusScope.of(context).requestFocus(_focusNode);
-                  setSpinnersStatus(false);
-                  return null;
-                });
+                var snap = await FirestoreService().getMessage(collectionName: "users");
+                if(snap.docs.any((element) => element["email"] == _email)){
+                  toast("Email ya registrado, pruebe con otro");
+                }else{
+                  setSpinnersStatus(true);
+                  auth= await Authentication().createUser(email: _email, password: _createPassword()).then((_){
+                    _createUser(_emailController.text);
+                    _createInitialPublication(_emailController.text);
+                    _createNotification();
+                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const VerifyEmail()));
+                    _emailController.text = "";
+                    bloc.changeEmail;
+                    FocusScope.of(context).requestFocus(_focusNode);
+                    setSpinnersStatus(false);
+                    return null;
+                  });
+                }
               }catch(e){
                 toast(e.toString());
               }
