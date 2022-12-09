@@ -13,11 +13,17 @@ class VerifyEmail extends StatefulWidget {
 }
 
 class _VerifyEmailState extends State<VerifyEmail> {
-  bool canResendEmail = true;
+  bool canResendEmail = false;
   
   @override
   void initState(){
     super.initState();
+    _getTrue();
+  }
+
+  void _getTrue() async{
+    await Future.delayed(const Duration(seconds: 2));
+    setState(() => canResendEmail = true);
   }
 
   Future sendVerificationEmail() async {
@@ -54,20 +60,28 @@ class _VerifyEmailState extends State<VerifyEmail> {
             children: <Widget>[
               const Center(
                 child: Text("¡Bienvenido/a!",
-                  style: TextStyle(fontSize: 35.0, fontWeight: FontWeight.w700, color: Color.fromARGB(255, 180, 50, 87)))),
+                  style: TextStyle(fontStyle: FontStyle.italic, fontSize: 40.0, fontWeight: FontWeight.w700, color: Color.fromARGB(255, 180, 50, 87)))),
               const SizedBox(height: 20.0),
               const Center(
-                child: Text("Haga click en el botón de enviar para mandar un correo a su cuenta que le permita cambiar la contraseña que se le ha asignado automáticamente (compruebe también la carpeta de spam de su correo, suele tardar un minuto en llegar).",
+                child: Text("Haga click en el botón de enviar para mandar un correo a su cuenta que le permita cambiar la contraseña que se le ha asignado automáticamente.",
                   style: TextStyle(fontSize: 17.0, fontWeight: FontWeight.bold),
                 )
               ),          
-              const SizedBox(height: 20.0),
+              const SizedBox(height: 10.0),
+              const Center(
+                child: Text("¡Importante!",
+                  style: TextStyle(fontSize: 30.0, fontWeight: FontWeight.w700,))),
+              const SizedBox(height: 10.0),
+              const Center(
+                child: Text("Compruebe también la carpeta de spam de su correo, suele tardar en torno a un minuto en llegar.",
+                  style: TextStyle(fontSize: 17.0, fontWeight: FontWeight.bold))),
+              const SizedBox(height: 10.0),
               const Center(
                 child: Text("Para mayor seguridad la contraseña debe tener mínimo 8 caractéres, con al menos un número, una mayúscula y una minúscula, si no incluye estos parámetros, no podrá iniciar sesión y deberá cambiarla otra vez.",
                   style: TextStyle(fontSize: 17.0, fontWeight: FontWeight.bold),
                 )
               ),
-              const SizedBox(height: 40.0),
+              const SizedBox(height: 30.0),
               AppButton(
                 icon: Icons.email,
                 color: canResendEmail ?  const Color.fromARGB(255, 180, 50, 87) : Colors.black54, 
@@ -82,7 +96,9 @@ class _VerifyEmailState extends State<VerifyEmail> {
                 color: const Color.fromARGB(255, 180, 50, 87), 
                 onPressed: ()async{
                   Authentication().signOut();
-                  Navigator.pop(context);
+                  await Future.delayed(const Duration(milliseconds: 200)).then((value) {
+                    Navigator.pop(context);
+                  });
                 }, 
                 name: "Cerrar sesión", 
                 colorText: Colors.white

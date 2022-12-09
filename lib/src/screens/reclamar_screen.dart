@@ -50,7 +50,7 @@ class _ReclamarLogroState extends State<ReclamarLogro>{
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Reclamar logro"),
+        title: const Text("Reclamar reto"),
       ),
       body: Stack(
         alignment: Alignment.center,

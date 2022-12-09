@@ -26,6 +26,7 @@ class _SelectTeamState extends State<SelectTeam> {
   QueryDocumentSnapshot? _team;
   QuerySnapshot<Map<String, dynamic>>? _snap;
   QuerySnapshot<Map<String, dynamic>>? _degrees;
+  List<Map> _data = List.generate(1000,(index) => {'isSelected': false});
   
   @override
   void initState() {
@@ -122,9 +123,7 @@ class _SelectTeamState extends State<SelectTeam> {
   List<Widget> _widgetStudent(){
     return <Widget>[
       const SizedBox(height: 5.0,), 
-      const Text("Elige tu equipo:", style: TextStyle(fontSize: 25.0, fontWeight: FontWeight.w700, color: Color.fromARGB(255, 180, 50, 87)),),
-      const SizedBox(height: 10.0,), 
-      _getNameTeam(),
+      const Center(child:Text("Elige tu equipo", style: TextStyle(fontSize: 30.0, fontWeight: FontWeight.w700, color: Color.fromARGB(255, 180, 50, 87)),),),
       const SizedBox(height: 20.0,),
       _getListViewTeams(),
       const SizedBox(height: 20.0,),   
@@ -147,7 +146,7 @@ class _SelectTeamState extends State<SelectTeam> {
                 addRepaintBoundaries: true,
                 itemCount: snapshot.data!.docs.length,
                 itemBuilder: (context, index) =>
-                  _getListTileTeams(context, snapshot.data!.docs[index]),
+                  _getListTileTeams(context, snapshot.data!.docs[index], _data[index]['isSelected'], index),
               ),
             );
           }else{
@@ -168,7 +167,7 @@ class _SelectTeamState extends State<SelectTeam> {
     );
   }
 
-  Widget _getListTileTeams(BuildContext context, QueryDocumentSnapshot document){
+  Widget _getListTileTeams(BuildContext context, QueryDocumentSnapshot document, bool active, int index){
     String docDegree = document['degree'];
     QueryDocumentSnapshot<Map<String, dynamic>>? degree = 
       _degrees!.docs.firstWhere((element) => element['titulo'] == docDegree);
@@ -188,12 +187,13 @@ class _SelectTeamState extends State<SelectTeam> {
     Color color = Color.fromARGB(degree['color'][0], degree['color'][1], degree['color'][2], degree['color'][3]);
     
     String teacherName = teacherDoc['email'];
-    String subtitle = "Tutor: $teacherName Carrera: $docDegree";
-    return _createCard(document, docName, subtitle, color);
+    String subtitle = "$teacherName \nGrado: $docDegree";
+    return _createCard(document, docName, subtitle, color, active, index);
   }
 
-  Widget _createCard(QueryDocumentSnapshot document, String docName,  String teacherName, Color color){
+  Widget _createCard(QueryDocumentSnapshot document, String docName,  String teacherName, Color color, bool active, int index){
     return AppCard(
+      active: active,
       borderColor: color,
       iconColor: color,
       radius: 3.0,
@@ -201,9 +201,11 @@ class _SelectTeamState extends State<SelectTeam> {
       title: Text("Equipo $docName",
         style: const TextStyle(fontSize: 20.0)
       ),
-      subtitle: Text("Tutor: $teacherName"),
+      subtitle: Text("Tutor: $teacherName "),
       onTap: (){
         setState(() {
+          _data = List.generate(1000,(index) => {'isSelected': false});
+          _data[index]['isSelected'] = true;
           _completed = true;
           _team = document;
         });
@@ -211,18 +213,6 @@ class _SelectTeamState extends State<SelectTeam> {
     );
   }
 
-  Widget _getNameTeam(){
-    if(_completed){
-      String equipo = _team!['name'].toString();
-      return Center(
-        child: Text(
-          "Equipo $equipo", style: const TextStyle(fontSize: 25.0,  fontWeight: FontWeight.bold),),
-      );
-    }else{
-      return Container(height:0.0);
-    }
-  }
-  
   void _createTeam() async{
     var snap = await FirestoreService().getMessage(collectionName: "teams");
     if(_getFinalRole() != "profesor"){

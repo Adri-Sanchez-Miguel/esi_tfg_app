@@ -10,15 +10,16 @@ class AppCard extends StatelessWidget {
   final Color? color;
   final Color? iconColor;
   final Color? textColor;
+  final bool active;
   final Color borderColor;
   final double radius;
-  const AppCard({Key? key, this.onTap, this.title, this.subtitle, this.leading, this.color, this.textColor, this.iconColor, required this.radius, required this.borderColor, this.trailing, this.photo}) : super(key: key);
+  const AppCard({Key? key, this.onTap, this.title, this.subtitle, this.leading, this.color, this.textColor, this.iconColor, required this.radius, required this.borderColor, this.trailing, this.photo, required this.active}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 5.0, vertical: 3),
-      color: color,
+      color: active ? Colors.white : color,
       elevation: 5,
       shape: RoundedRectangleBorder(
         side: BorderSide(
@@ -33,9 +34,12 @@ class AppCard extends StatelessWidget {
           children: <Widget>[
             Expanded(
               child: ListTile(
+                selected: active,
+                enabled: true,
                 trailing: trailing,
                 contentPadding: const EdgeInsets.all(4.0),
-                selectedColor: Colors.black,
+                selectedColor: Colors.redAccent,
+                selectedTileColor: Colors.white,
                 iconColor: iconColor,
                 textColor: textColor,
                 leading: SizedBox(height: 100, width: 60, child:leading),

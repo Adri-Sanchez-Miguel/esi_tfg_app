@@ -24,6 +24,7 @@ class _SettingsScreenState extends State<SettingsScreen>{
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
           AppCard(
+            active: false,
             color: Colors.white,
             radius: 3.0,
             borderColor: Colors.black,

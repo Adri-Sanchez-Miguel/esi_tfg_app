@@ -19,6 +19,7 @@ class _SelectDegreeState extends State<SelectDegree> {
   bool _showSpinner = false;
   bool _completed = false; 
   QueryDocumentSnapshot? _degree;
+  List<Map> _data = List.generate(1000,(index) => {'isSelected': false});
 
   void setSpinnersStatus(bool status){
     setState(() {
@@ -32,7 +33,7 @@ class _SelectDegreeState extends State<SelectDegree> {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: const Text("Grado"),
+        title: const Text("Grados"),
         backgroundColor: const Color.fromARGB(255, 180, 50, 87),
       ),
       body: ModalProgressHUD(
@@ -43,10 +44,8 @@ class _SelectDegreeState extends State<SelectDegree> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,    
             children:  <Widget>[
-              const Text("Elige tu titulación:", style: TextStyle(fontSize: 25.0, fontWeight: FontWeight.w700, color: Color.fromARGB(255, 180, 50, 87)),),
-              const SizedBox(height: 10.0,), 
-              _getNameDegree(),
-              const SizedBox(height: 15.0,), 
+              const Center(child: Text("Elige tu titulación", style: TextStyle(fontSize: 30.0, fontWeight: FontWeight.w700, color: Color.fromARGB(255, 180, 50, 87)),),),
+              const SizedBox(height: 25.0,), 
               _selectDegree(),
               const SizedBox(height: 20.0,),
               _getBack()
@@ -68,7 +67,7 @@ class _SelectDegreeState extends State<SelectDegree> {
                 addRepaintBoundaries: true,
                 itemCount: snapshot.data!.docs.length,
                 itemBuilder: (context, index) =>
-                  _getDegree(context, snapshot.data!.docs[index]),
+                  _getDegree(context, snapshot.data!.docs[index], _data[index]['isSelected'], index),
               ),
             );
           }else{
@@ -89,11 +88,12 @@ class _SelectDegreeState extends State<SelectDegree> {
     );
   }
   
-  Widget _getDegree(BuildContext context, QueryDocumentSnapshot<Map<String, dynamic>> doc) {
+  Widget _getDegree(BuildContext context, QueryDocumentSnapshot<Map<String, dynamic>> doc, bool active, int index) {
     Color? color = Color.fromARGB(doc['color'][0], doc['color'][1], doc['color'][2], doc['color'][3]);
     String title = doc['titulo'].toString();
     String subtitle = doc['facultad'].toString();
     return AppCard(
+      active: active,
       radius: 2.0,
       borderColor: Colors.black12,
       iconColor: Colors.white,
@@ -103,9 +103,11 @@ class _SelectDegreeState extends State<SelectDegree> {
       title: Text(title,
         style: const TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold)
       ),
-      subtitle: Text(subtitle),
+      subtitle: Text(subtitle, style: const TextStyle(fontWeight: FontWeight.bold)),
       onTap: (){
         setState(() {
+          _data = List.generate(1000,(index) => {'isSelected': false});
+          _data[index]['isSelected'] = true;
           _completed = true;
           _degree = doc;
         });
@@ -118,18 +120,6 @@ class _SelectDegreeState extends State<SelectDegree> {
       await FirestoreService().update(document: widget.user!.reference, collectionValues: {
         'degree': _degree!['titulo'] 
       }); 
-    }
-  }
-
-  Widget _getNameDegree(){
-    if(_completed){
-      String carrera = _degree!['titulo'];
-      return Center(
-        child: Text(
-          "Carrera elegida:\n $carrera", style: const TextStyle(fontSize: 25.0,  fontWeight: FontWeight.bold),)
-      );
-    }else{
-      return Container(height:0.0);
     }
   }
 

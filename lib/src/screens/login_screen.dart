@@ -1,8 +1,4 @@
-import 'dart:io';
-
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:esi_tfg_app/src/screens/home.dart';
-import 'package:esi_tfg_app/src/services/firestore_service.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
@@ -12,7 +8,6 @@ import 'package:esi_tfg_app/src/widgets/app_button.dart';
 import 'package:esi_tfg_app/src/widgets/app_errormessage.dart';
 import 'package:esi_tfg_app/src/widgets/app_texfield.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
-import 'package:flutter/cupertino.dart';
 
 class LoginScreen extends StatefulWidget {
   static const String routeName = '/login';
@@ -29,15 +24,13 @@ class _LoginScreenState extends State<LoginScreen>{
   final GlobalKey<FormState> _formkey = GlobalKey<FormState>();
   late TextEditingController _emailController;
   late TextEditingController _passwordController;
-  QueryDocumentSnapshot<Map<String, dynamic>>? _user;
 
   @override
   void initState() {
     super.initState();
     _focusNode = FocusNode();
     _emailController = TextEditingController();
-   _passwordController = TextEditingController();
-   _getEmail();
+    _passwordController = TextEditingController();
   }
 
   @override
@@ -48,38 +41,6 @@ class _LoginScreenState extends State<LoginScreen>{
     _passwordController.dispose();
   }
 
-   void _getEmail() async {
-    try{
-      await Future.delayed(const Duration(milliseconds: 2000));
-      var user = await Authentication().getRightUser();
-      var snap = await FirestoreService().getMessage(collectionName: "users");
-
-      if (user != null){
-        setState(() {
-          _user = snap.docs.firstWhere((element) => element["email"] == user.email);
-          if(_user!["verified"]){
-            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const Home()));
-          }
-          else{
-            showable = true;
-            Authentication().signOut();
-          }
-        });
-      }else {
-        setState(() {
-          showable = true;
-        });
-      }
-    }catch(e){
-      Authentication().signOut();
-      Fluttertoast.showToast(
-        msg: e.toString(),
-        fontSize: 20,
-        gravity: ToastGravity.CENTER,
-        backgroundColor: Colors.red[400]
-      );
-    }
-  }
 
   void setSpinnersStatus(bool status){
     setState(() {
@@ -89,30 +50,6 @@ class _LoginScreenState extends State<LoginScreen>{
 
   @override
   Widget build(BuildContext context) {
-    if(showable){
-      return _fullPage();
-    }else{
-      return Scaffold(
-        body: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,    
-          children:<Widget>[
-            const Center(child:Text("Comprobando su sesión...")),
-            Container(
-              padding: const EdgeInsets.only(top: 100.0),
-              child: Center( 
-                child: Platform.isAndroid ? 
-                const CircularProgressIndicator() 
-                : const CupertinoActivityIndicator()
-              )
-            )
-          ]
-        )
-      );
-    }
-  }
-
-  Widget _fullPage(){
     final bloc = Provider.of<Bloc>(context);
     _emailController.text = "";
     _passwordController.text = "";

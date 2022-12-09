@@ -1,16 +1,23 @@
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:esi_tfg_app/src/screens/detail/team_detail.dart';
 import 'package:esi_tfg_app/src/services/firestore_service.dart';
+import 'package:esi_tfg_app/src/widgets/app_card.dart';
+import 'package:esi_tfg_app/src/widgets/app_detail.dart';
+import 'package:esi_tfg_app/src/widgets/app_modalbottomsheet.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:esi_tfg_app/src/services/storage_service.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class UserDetail extends StatelessWidget {
   final Storage storage = Storage();
+  final User? loggedInUser;
   final QueryDocumentSnapshot<Map<String, dynamic>>? user;
-  UserDetail({Key? key, required this.user}) : super(key: key);
+  UserDetail({Key? key, required this.user, this.loggedInUser}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +43,24 @@ class UserDetail extends StatelessWidget {
                 alignment: WrapAlignment.center,
                 crossAxisAlignment: WrapCrossAlignment.center, 
                 children:<Widget>[
-                  user!["image"] != "" ? _getPhoto(user!["image"], 100.0): const Icon(Icons.person, size: 100.0,),
+                  user!["image"] != "" ? 
+                    _getPhoto(user!["image"], 100.0) 
+                    : const Icon(Icons.person, size: 100.0,),
+                  user!["email"] == loggedInUser!.email ? 
+                    TextButton(
+                      style: TextButton.styleFrom(
+                        foregroundColor: const Color.fromARGB(255, 209, 73, 111),
+                        textStyle: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                      ),
+                      onPressed: () {
+                        showModalBottomSheet(
+                          context: context, 
+                          builder: (BuildContext context){
+                            return ModalBottomSheet(method: true, user: user);
+                          }
+                        );                      },
+                      child:const Text("Editar"),
+                    ): Container(height: 0.0,),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 10.0) ,
                     child: Center(
@@ -58,7 +82,7 @@ class UserDetail extends StatelessWidget {
               const SizedBox(height: 10.0,),
               const Divider(thickness: 1.0, color: Colors.black,),            
               const SizedBox(height: 10.0,),
-              const Text("Nivel de experiencia:", style: TextStyle(fontSize: 25.0, fontWeight: FontWeight.w700),),
+              const Text("Rango de experiencia:", style: TextStyle(fontSize: 25.0, fontWeight: FontWeight.w700),),
               Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.center,    
@@ -117,7 +141,8 @@ class UserDetail extends StatelessWidget {
   }
 
   Widget _getPhoto(String name, double height){
-    return FutureBuilder(
+    try{
+      return FutureBuilder(
       future: storage.photoURL(name),
       builder: (context, AsyncSnapshot<String> snapshot){
         return snapshot.connectionState == ConnectionState.waiting ? 
@@ -142,18 +167,41 @@ class UserDetail extends StatelessWidget {
                 height: height,
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(10),
-                  child: Image.network(
-                      snapshot.data!,
-                      fit: BoxFit.cover
-                    )
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (context) {
+                        return DetailScreen(path: snapshot.data!, tag: 'userHero',);
+                      }));
+                    },
+                    child: Hero(
+                      tag: 'userHero',
+                      child: CachedNetworkImage(
+                        key: ValueKey<String>(snapshot.data!),
+                        imageUrl: snapshot.data!,
+                        placeholder: (context, url) => Platform.isAndroid ? 
+                          const CircularProgressIndicator() 
+                          : const CupertinoActivityIndicator(),
+                        errorWidget: (context, url, error) => const Icon(Icons.error),
+                      ),
+                    ),
+                  ),
                 ),
-              )
+              ),
             ]
           )
         )
         : Container(height: 0.0,);
       },
     );
+    }catch(e){
+      Fluttertoast.showToast(
+        msg: e.toString(),
+        fontSize: 20,
+        gravity: ToastGravity.CENTER,
+        backgroundColor: Colors.red[400]
+      );
+      return Container(height: 0.0,);
+    }
   }
 
   Widget _getList(BuildContext context, String collectionName, bool decider){
@@ -194,7 +242,7 @@ class UserDetail extends StatelessWidget {
             textStyle: const TextStyle(fontSize: 20),
           ),
           onPressed: () {
-            Navigator.push(context, MaterialPageRoute(builder: (context) => TeamDetail(team: selectedTeam)));
+            Navigator.push(context, MaterialPageRoute(builder: (context) => TeamDetail(team: selectedTeam, loggedInUser: loggedInUser,)));
           },
           child: Text("Equipo $name"),
         ),
@@ -210,34 +258,18 @@ class UserDetail extends StatelessWidget {
     Iterable<dynamic> challenges = challengesMap.values;
     for(var challenge in challenges){
       var selectedChallenge = messages.firstWhere((element) => element.reference == challenge);
-      String name = selectedChallenge["name"];
       switch(selectedChallenge["level"]){
         case 1:
           bronzeCount +=1;
-          bronzeItems.add(
-            Padding(
-              padding: const EdgeInsets.only(left: 15.0, bottom: 15.0),
-              child:Text("Reto: $name", style: const TextStyle(fontSize: 20.0),)
-            )
-          );
+          bronzeItems.add(_getAppCard(selectedChallenge));
           break;
         case 5:
           silverCount +=1;
-          silverItems.add(
-            Padding(
-              padding: const EdgeInsets.only(left: 15.0, bottom: 15.0),
-              child:Text("Reto: $name", style: const TextStyle(fontSize: 20.0),)
-            )
-          );
+          silverItems.add(_getAppCard(selectedChallenge));
           break;
         case 20:
           goldCount +=1;
-          goldItems.add(
-            Padding(
-              padding: const EdgeInsets.only(left: 15.0, bottom: 15.0),
-              child:Text("Reto: $name", style: const TextStyle(fontSize: 20.0),)
-            )
-          );
+          goldItems.add(_getAppCard(selectedChallenge));
           break;
       }
     }
@@ -248,33 +280,33 @@ class UserDetail extends StatelessWidget {
           alignment: WrapAlignment.center,
           crossAxisAlignment: WrapCrossAlignment.center, 
           children: <Widget>[
-            Image.asset('images/gold.png',height: 40.0),
+            Image.asset('images/gold.png',height: 35.0),
             TextButton(
               style: TextButton.styleFrom(
                 foregroundColor: const Color.fromARGB(255, 209, 73, 111),
-                textStyle: const TextStyle(fontSize: 20),
+                textStyle: const TextStyle(fontSize: 18),
               ),
               onPressed: () {
                 _getModalSheet(context, goldItems);
               },
               child:Text(goldCount.toString()),
             ),
-            Image.asset('images/silver.png',height: 40.0),
+            Image.asset('images/silver.png',height: 35.0),
             TextButton(
               style: TextButton.styleFrom(
                 foregroundColor: const Color.fromARGB(255, 209, 73, 111),
-                textStyle: const TextStyle(fontSize: 20),
+                textStyle: const TextStyle(fontSize: 18),
               ),
               onPressed: () {
-                 _getModalSheet(context, silverItems);
+                _getModalSheet(context, silverItems);
               },
               child:Text(silverCount.toString()),
             ),
-            Image.asset('images/bronze.png',height: 40.0),
+            Image.asset('images/bronze.png',height: 35.0),
             TextButton(
               style: TextButton.styleFrom(
                 foregroundColor: const Color.fromARGB(255, 209, 73, 111),
-                textStyle: const TextStyle(fontSize: 20),
+                textStyle: const TextStyle(fontSize: 18),
               ),
               onPressed: () {
                 _getModalSheet(context, bronzeItems);
@@ -293,7 +325,7 @@ class UserDetail extends StatelessWidget {
       context: context, 
       builder: (BuildContext context){
         return SizedBox(
-          height: 400.0,
+          height: 600.0,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
@@ -324,6 +356,60 @@ class UserDetail extends StatelessWidget {
           )
         );
       }
+    );
+  }
+
+  Widget _getAppCard(QueryDocumentSnapshot<Map<String, dynamic>> challenge){
+    Widget? icon;
+    Color colorDecoration = Colors.black;
+    switch(challenge['level']){
+      case 1:
+        icon = Image.asset('images/bronze.png');
+        colorDecoration = const Color.fromARGB(255, 114, 64, 7);
+        break;
+      case 5:
+        icon = Image.asset('images/silver.png');
+        colorDecoration = Colors.grey;
+        break;      
+      default:
+        icon = Image.asset('images/gold.png');
+        colorDecoration = Colors.yellow;
+        break;    } 
+    String visibility= "";
+    String title = challenge['name'];
+    String description = challenge['explanation'];
+
+    switch(challenge['users_visibility']){
+      case 'profesor':
+        visibility = "Disponible solo para profesores";
+        break;
+      case 'mentor':
+        visibility = "Disponible solo para mentores";
+        break;
+      case 'mentorizado':
+        visibility = "Disponible solo para mentorizados";
+        break;
+      default:
+        visibility = "Disponible para todo el mundo";
+    }
+    return AppCard(
+      active: false,
+      color: Colors.white,
+      radius: 3.0,
+      borderColor: colorDecoration,
+      textColor: Colors.black,
+      leading: icon,
+      title: Text.rich(
+        TextSpan(
+          text: '', 
+          children: <TextSpan>[
+            TextSpan(text: '$title\n', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0)),
+            TextSpan(text: '$visibility\n', style: const TextStyle(fontStyle: FontStyle.italic, fontSize: 15.0)),
+          ],
+        ),
+      ),
+      subtitle: Text('\n$description'),
+      onTap: (){}
     );
   }
 }

@@ -3,11 +3,13 @@ import 'package:esi_tfg_app/src/screens/detail/team_detail.dart';
 import 'package:esi_tfg_app/src/services/firestore_service.dart';
 import 'package:esi_tfg_app/src/widgets/app_button.dart';
 import 'package:esi_tfg_app/src/widgets/app_card.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class Team extends StatefulWidget {
   final QueryDocumentSnapshot<Map<String, dynamic>>? user;
-  const Team({Key? key, this.user}) : super(key: key);
+  final User? loggedInUser;
+  const Team({Key? key, this.user, this.loggedInUser}) : super(key: key);
 
 @override
   State<Team> createState() => _TeamState();
@@ -69,6 +71,7 @@ class _TeamState extends State<Team> {
     String degree = team['degree'];
 
     return AppCard(
+      active: false,
       color: background,
       radius: 3.0,
       borderColor: Colors.black,
@@ -85,7 +88,7 @@ class _TeamState extends State<Team> {
       ),
       subtitle: Text('Grado: $degree', style: const TextStyle(fontSize: 15.0)),
       onTap: (){
-        Navigator.push(context, MaterialPageRoute(builder: (context) => TeamDetail(team: team)));
+        Navigator.push(context, MaterialPageRoute(builder: (context) => TeamDetail(team: team, loggedInUser: widget.loggedInUser,)));
       }
     );
   }

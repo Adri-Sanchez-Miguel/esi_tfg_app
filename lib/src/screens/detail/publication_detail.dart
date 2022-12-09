@@ -1,9 +1,11 @@
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:esi_tfg_app/src/services/firestore_service.dart';
 import 'package:esi_tfg_app/src/services/storage_service.dart';
 import 'package:esi_tfg_app/src/widgets/app_card.dart';
+import 'package:esi_tfg_app/src/widgets/app_detail.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -25,6 +27,7 @@ class _PublicationDetailState extends State<PublicationDetail>{
   QuerySnapshot<Map<String, dynamic>>? _publications;
   QueryDocumentSnapshot<Map<String, dynamic>>? _refreshedPublication;
   File? imageFile;
+
 
   @override
   void initState() {
@@ -171,6 +174,7 @@ class _PublicationDetailState extends State<PublicationDetail>{
   }
 
   Widget _getPhoto(String name){
+    try{
     if(name != ""){
       return FutureBuilder(
         future: storage.photoURL(name),
@@ -191,9 +195,23 @@ class _PublicationDetailState extends State<PublicationDetail>{
             ]
           ) : snapshot.hasData ? Center(
               child:SizedBox (
-                child: Image.network(
-                  snapshot.data!,
-                  fit: BoxFit.cover
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (context) {
+                      return DetailScreen(path: snapshot.data!, tag: 'publicationHero');
+                    }));
+                  },
+                  child: Hero(
+                    tag: 'publicationHero',
+                    child: CachedNetworkImage(
+                      key: ValueKey<String>(snapshot.data!),
+                      imageUrl: snapshot.data!,
+                      placeholder: (context, url) => Platform.isAndroid ? 
+                        const CircularProgressIndicator() 
+                        : const CupertinoActivityIndicator(),
+                      errorWidget: (context, url, error) => const Icon(Icons.error),
+                    ),
+                  ),
                 ),
               )
             )
@@ -202,6 +220,15 @@ class _PublicationDetailState extends State<PublicationDetail>{
       );
     }else{
       return Container(height: 0.0, color: Colors.black38,);
+    }
+  }catch(e){
+      Fluttertoast.showToast(
+        msg: e.toString(),
+        fontSize: 20,
+        gravity: ToastGravity.CENTER,
+        backgroundColor: Colors.red[400]
+      );
+      return Container(height: 0.0,);
     }
   }
 
@@ -310,6 +337,7 @@ class _PublicationDetailState extends State<PublicationDetail>{
     Color decoration = Colors.black;
 
     return AppCard(
+      active: false,
       trailing: widget.loggedInUser.email == username || widget.loggedInUser.email == widget.publication['user'] ?  PopupMenuButton(
         tooltip: "Borra el comentario",
         icon: const Icon(Icons.more_vert_rounded),

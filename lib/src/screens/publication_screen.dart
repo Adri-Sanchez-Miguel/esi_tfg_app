@@ -1,8 +1,10 @@
 import 'dart:io';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:esi_tfg_app/src/screens/detail/publication_detail.dart';
 import 'package:esi_tfg_app/src/services/storage_service.dart';
 import 'package:esi_tfg_app/src/widgets/app_card.dart';
+import 'package:esi_tfg_app/src/widgets/app_detail.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -177,6 +179,7 @@ class _PublicationsScreenState extends State<PublicationsScreen> {
   Widget _getAppCard(Widget? icon, QueryDocumentSnapshot<Map<String, dynamic>> publication, Color colorDecoration){
     String username = publication['user'];
     Map<String, dynamic> likes = publication['likes'];
+    Map<String, dynamic> comments = publication['comentarios'];
     bool liked = likes.containsValue(loggedInUser.email);
     Color background = Colors.white;
     Color decoration = colorDecoration;
@@ -185,7 +188,7 @@ class _PublicationsScreenState extends State<PublicationsScreen> {
     Widget? photo = Container(height: 0.0);
     String description = publication['description'];
     if(publication["photo"] != ""){
-      photo = _getPhoto(publication["photo"], 200.0);
+      photo = _getHeroPhoto(publication["photo"], 200.0, publication);
     }
     if (username == loggedInUser.email){
       username = "Tú";
@@ -232,23 +235,61 @@ class _PublicationsScreenState extends State<PublicationsScreen> {
           ],
         );
       }else{
-        trailing = IconButton(
-          tooltip: "Botón de me gusta la publicación",
-          icon: liked ? const Icon(Icons.favorite) : const Icon(Icons.favorite_border_rounded),
-          color:  const Color.fromARGB(255, 180, 50, 87),
-          onPressed: () {
-            setState(() {
-              _changeLike(liked, publication, likes);
-            });
-          },
+        trailing = Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,    
+          children:<Widget>[
+            Expanded(
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,    
+                children:<Widget>[
+                  IconButton(
+                    padding: const EdgeInsets.symmetric(vertical: 1.0),
+                    tooltip: "Botón de me gusta la publicación",
+                    icon: liked ? const Icon(Icons.favorite) : const Icon(Icons.favorite_border_rounded),
+                    color:  const Color.fromARGB(255, 180, 50, 87),
+                    onPressed: () {
+                      setState(() {
+                        _changeLike(liked, publication, likes);
+                      });
+                    },
+                  ),
+                  Text(likes.length.toString()),
+                ]
+              ),
+            ),
+            Expanded(
+              child:Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,  
+                children:<Widget>[
+                  IconButton(
+                    padding: const EdgeInsets.symmetric(vertical: 5.0),
+                    tooltip: "Botón para comentar la aplicación",
+                    icon: const Icon(Icons.mode_comment_outlined),
+                    color:  const Color.fromARGB(255, 180, 50, 87),
+                    onPressed: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => PublicationDetail(publication: publication, loggedInUser: loggedInUser,)));               
+                    },
+                  ),
+                Text(comments.length.toString()),
+                ],
+              ),
+            ),
+          ]
         );
       }
     }
     return AppCard(
+      active: false,
       trailing: trailing,
       color: background,
       radius: 3.0,
-      borderColor: Colors.black,
+      borderColor: publication["challenge"] == null ? Colors.black : Colors.red,
       iconColor: decoration,
       textColor: decoration,
       leading: icon,
@@ -290,13 +331,14 @@ class _PublicationsScreenState extends State<PublicationsScreen> {
           loggedInUser.email! : loggedInUser.email
       });
       await FirestoreService().update(document: publication.reference, collectionValues: {
-       'likes': likes,
+        'likes': likes,
       });
     }
   }
 
   Widget _getPhoto(String name, double height){
-    return FutureBuilder(
+    try{
+      return FutureBuilder(
       future: storage.photoURL(name),
       builder: (context, AsyncSnapshot<String> snapshot){
         return snapshot.connectionState == ConnectionState.waiting ? 
@@ -321,17 +363,92 @@ class _PublicationsScreenState extends State<PublicationsScreen> {
                 height: height,
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(5),
-                  child: Image.network(
-                      snapshot.data!,
-                      fit: BoxFit.cover
-                    )
+                  child: CachedNetworkImage(
+                    key: ValueKey<String>(snapshot.data!),
+                    imageUrl: snapshot.data!,
+                    placeholder: (context, url) => Platform.isAndroid ? 
+                      const CircularProgressIndicator() 
+                      : const CupertinoActivityIndicator(),
+                    errorWidget: (context, url, error) => const Icon(Icons.error),
+                  ),
                 ),
               )
             ]
-          )
+          ),
         )
         : Container(height: 0.0,);
       },
     );
+    }catch(e){
+      Fluttertoast.showToast(
+        msg: e.toString(),
+        fontSize: 20,
+        gravity: ToastGravity.CENTER,
+        backgroundColor: Colors.red[400]
+      );
+      return Container(height: 0.0,);
+    }
+  }
+
+  Widget _getHeroPhoto(String name, double height, QueryDocumentSnapshot<Map<String, dynamic>> publication){
+    try{
+      return FutureBuilder(
+      future: storage.photoURL(name),
+      builder: (context, AsyncSnapshot<String> snapshot){
+        return snapshot.connectionState == ConnectionState.waiting ? 
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,    
+          children:<Widget>[
+            Container(
+              padding: const EdgeInsets.only(top: 100.0),
+              child: Center( 
+                child: Platform.isAndroid ? 
+                const CircularProgressIndicator() 
+                : const CupertinoActivityIndicator()
+              )
+            )
+          ]
+        ) : snapshot.hasData ? Center(
+            child:Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox (
+                height: height,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(5),
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (context) {
+                        return DetailScreen(path: snapshot.data!, tag: publication.reference.toString(),);
+                      }));
+                    },
+                    child: Hero(
+                      tag: publication.reference.toString(),
+                      child: CachedNetworkImage(
+                        key: ValueKey<String>(snapshot.data!),
+                        imageUrl: snapshot.data!,
+                        placeholder: (context, url) => const Text ("Cargando..."),
+                        errorWidget: (context, url, error) => const Icon(Icons.error),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ]
+          ),
+        )
+        : Container(height: 0.0,);
+      },
+    );
+    }catch(e){
+      Fluttertoast.showToast(
+        msg: e.toString(),
+        fontSize: 20,
+        gravity: ToastGravity.CENTER,
+        backgroundColor: Colors.red[400]
+      );
+      return Container(height: 0.0,);
+    }
   }
 }

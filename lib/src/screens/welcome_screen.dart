@@ -1,5 +1,14 @@
+import 'dart:io';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:esi_tfg_app/src/screens/home.dart';
+import 'package:esi_tfg_app/src/services/authentication.dart';
+import 'package:esi_tfg_app/src/services/firestore_service.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:esi_tfg_app/src/widgets/app_button.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class WelcomeScreen extends StatefulWidget {
   static const String routeName = '';
@@ -10,9 +19,68 @@ class WelcomeScreen extends StatefulWidget {
 }
 
 class _WelcomeScreenState extends State<WelcomeScreen> {  
+  QueryDocumentSnapshot<Map<String, dynamic>>? _user;
+  
+  Future<void> _getUser()async {
+    try{
+      await Firebase.initializeApp();
+      var user = await Authentication().getRightUser();
+      var snap = await FirestoreService().getMessage(collectionName: "users");
+
+      if (user != null){
+        _user = snap.docs.firstWhere((element) => element["email"] == user.email);
+        if(_user!["verified"]){
+          await Future.delayed(const Duration(milliseconds: 200)).then((value){
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const Home()));
+          });
+
+        }
+        else{
+          Authentication().signOut();
+        }
+      }
+      
+      await Future.delayed(const Duration(milliseconds: 300));
+    }catch(e){
+      Authentication().signOut();
+      Fluttertoast.showToast(
+        msg: e.toString(),
+        fontSize: 20,
+        gravity: ToastGravity.CENTER,
+        backgroundColor: Colors.red[400]
+      );
+    }  
+  }
+  
   @override
   Widget build(BuildContext context) {
-    return _fullPage();
+    return FutureBuilder<void>(
+      future: _getUser(),
+      builder: (context, snapshot){
+        return snapshot.connectionState == ConnectionState.waiting ? 
+        Scaffold(
+          body: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,    
+            children:<Widget>[
+              // const Center(
+              //   child: Text(
+              //     "¡Hola!",
+              //     style: TextStyle(fontSize: 30.0, fontWeight: FontWeight.bold))),
+              Image.asset('images/menthor_icon.png',height: 200.0,),
+              Container(
+                padding: const EdgeInsets.only(top: 100.0),
+                child: Center( 
+                  child: Platform.isAndroid ? 
+                  const CircularProgressIndicator() 
+                  : const CupertinoActivityIndicator()
+                )
+              )
+            ]
+          )
+        ) : snapshot.connectionState == ConnectionState.done ? _fullPage() : Container(height: 0.0,);
+      },
+    );
   }
 
   Widget _fullPage(){

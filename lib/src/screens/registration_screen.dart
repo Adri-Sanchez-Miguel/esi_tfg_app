@@ -225,7 +225,7 @@ class _RegistrationScreenState extends State<RegistrationScreen>{
       'user': email.toLowerCase(),
       'visibility': 'todos',
       'decider': "",
-      'title': '¡Hola mundo!',
+      'title': 'Reto conseguido: ¡Hola mundo!',
       'creation_date': DateTime.now(),
       'comentarios': {},
       'degree': "todos",

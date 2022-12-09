@@ -52,7 +52,7 @@ class IntroductionPages extends StatelessWidget {
       ),
       PageViewModel(
         title: "Compite y comparte",
-        body: "Junto a tu equipo, trata de conseguir el mayor número de logros posibles, y compártelos con todo el mundo en el muro, junto a otros mensajes que todo el que tú quieras puede ver. También puedes ver cúantos logros tienen otros equipos o usuarios.",
+        body: "Junto a tu equipo, trata de conseguir el mayor número de retos posibles, y compártelos con todo el mundo en el muro, junto a otros mensajes que todo el que tú quieras puede ver. También puedes ver cúantos retos tienen otros equipos o usuarios.",
         image: Center(
           child: Padding(
             padding: const EdgeInsets.only(left: 20.0),

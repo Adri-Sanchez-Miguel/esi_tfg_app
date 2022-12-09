@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:esi_tfg_app/src/screens/detail/user_detail.dart';
 import 'package:esi_tfg_app/src/services/storage_service.dart';
@@ -49,9 +50,11 @@ class _UsersScreenState extends State<UsersScreen> {
     var user = await Authentication().getRightUser();
     _users = await FirestoreService().getMessage(collectionName: "users");
     if (user != null){
-      setState(() {
-        loggedInUser = user;
-      });
+      if(mounted){
+        setState(() {
+          loggedInUser = user;
+        });
+      }
     }
     }catch(e){
       Fluttertoast.showToast(
@@ -100,9 +103,12 @@ class _UsersScreenState extends State<UsersScreen> {
                       onPressed: (){
                         var aux = _emailController.text;
                         _emailController.clear;
-                        setState(() {
-                          _user = aux;
-                        });
+                        if(mounted){
+                          setState(() {
+                            _user = aux;
+                          });
+                        }
+                        
                       },
                       child: Text("Buscar", style: _sendButtonStyle,)
                     ),
@@ -169,6 +175,7 @@ class _UsersScreenState extends State<UsersScreen> {
     String level = user['status'].toString();
 
     return AppCard(
+      active: false,
       color: background,
       radius: 3.0,
       borderColor: Colors.black,
@@ -183,9 +190,9 @@ class _UsersScreenState extends State<UsersScreen> {
           ],
         ),
       ),
-      subtitle: Text('Rol: $role\nLevel: $level', style: const TextStyle(fontSize: 15.0)),
+      subtitle: Text('Rol: $role\nExperiencia: $level px', style: const TextStyle(fontSize: 15.0)),
       onTap: (){
-        Navigator.push(context, MaterialPageRoute(builder: (context) => UserDetail(user: user)));
+        Navigator.push(context, MaterialPageRoute(builder: (context) => UserDetail(user: user, loggedInUser: loggedInUser,)));
       }
     );
   }
@@ -209,7 +216,8 @@ class _UsersScreenState extends State<UsersScreen> {
   }
 
   Widget _getPhoto(String name, double height){
-    return FutureBuilder(
+    try{
+      return FutureBuilder(
       future: storage.photoURL(name),
       builder: (context, AsyncSnapshot<String> snapshot){
         return snapshot.connectionState == ConnectionState.waiting ? 
@@ -234,10 +242,14 @@ class _UsersScreenState extends State<UsersScreen> {
                 height: height,
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(5),
-                  child: Image.network(
-                      snapshot.data!,
-                      fit: BoxFit.cover
-                    )
+                  child: CachedNetworkImage(
+                    key: ValueKey<String>(snapshot.data!),
+                    imageUrl: snapshot.data!,
+                    placeholder: (context, url) => Platform.isAndroid ? 
+                      const CircularProgressIndicator() 
+                      : const CupertinoActivityIndicator(),
+                    errorWidget: (context, url, error) => const Icon(Icons.error),
+                  ),
                 ),
               )
             ]
@@ -246,5 +258,14 @@ class _UsersScreenState extends State<UsersScreen> {
         : Container(height: 0.0,);
       },
     );
+    }catch(e){
+      Fluttertoast.showToast(
+        msg: e.toString(),
+        fontSize: 20,
+        gravity: ToastGravity.CENTER,
+        backgroundColor: Colors.red[400]
+      );
+      return Container(height: 0.0,);
+    }
   }
 }

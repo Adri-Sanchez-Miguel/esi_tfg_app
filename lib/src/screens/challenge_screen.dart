@@ -171,7 +171,7 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
                 case 5:
                   return _getAppCard(Image.asset('images/silver.png'), challenge, Colors.grey);
                 default:
-                  return _getAppCard(Image.asset('images/gold.png'),challenge, Colors.yellow[700]);
+                  return _getAppCard(Image.asset('images/gold.png'),challenge, Colors.yellow);
               } 
             }else{return Container(height: 0.0,);}
           }
@@ -183,7 +183,7 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
   Widget _getAppCard(Widget? icon, QueryDocumentSnapshot<Map<String, dynamic>> challenge, Color? colorDecoration){
     DateTime endDate = challenge['end_date'].toDate();
     Duration duration = endDate.difference(DateTime.now());
-    String difference = "";
+    String difference = "", visibility= "";
     Color background = Colors.white;
     String title = challenge['name'];
     String description = challenge['explanation'];
@@ -199,10 +199,24 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
         difference = "Fecha límite : $hours horas";
       }
     }
+    switch(challenge['users_visibility']){
+      case 'profesor':
+        visibility = "Disponible solo para profesores";
+        break;
+      case 'mentor':
+        visibility = "Disponible solo para mentores";
+        break;
+      case 'mentorizado':
+        visibility = "Disponible solo para mentorizados";
+        break;
+      default:
+        visibility = "Disponible para todo el mundo";
+    }
     return AppCard(
+      active: false,
       color: background,
       radius: 3.0,
-      borderColor: Colors.black,
+      borderColor: colorDecoration!,
       textColor: Colors.black,
       leading: icon,
       title: Text.rich(
@@ -210,7 +224,8 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
           text: '', 
           children: <TextSpan>[
             TextSpan(text: '$title\n', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0)),
-            TextSpan(text: difference, style: const TextStyle(fontStyle: FontStyle.italic, fontSize: 15.0)),
+            TextSpan(text: '$difference\n', style: const TextStyle(fontStyle: FontStyle.italic, fontSize: 15.0)),
+            TextSpan(text: '$visibility\n', style: const TextStyle(fontStyle: FontStyle.italic, fontSize: 15.0)),
           ],
         ),
       ),

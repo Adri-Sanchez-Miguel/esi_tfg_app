@@ -4,6 +4,7 @@ import 'package:esi_tfg_app/src/screens/new_challenge_screen.dart';
 import 'package:esi_tfg_app/src/screens/new_message_screen.dart';
 import 'package:esi_tfg_app/src/screens/reclamar_screen.dart';
 import 'package:esi_tfg_app/src/screens/users_screen.dart';
+import 'package:esi_tfg_app/src/screens/team_ranking.dart';
 import 'package:flutter/material.dart';
 import 'package:esi_tfg_app/src/screens/publication_screen.dart';
 
@@ -22,6 +23,7 @@ class _BottomNavState extends State<BottomNav> {
     PublicationsScreen(user: widget.user),
     ChallengeScreen(user: widget.user),
     const UsersScreen(),
+    const TeamRanking()
   ];
 
   void _onItemTapped(int index) {
@@ -60,7 +62,7 @@ class _BottomNavState extends State<BottomNav> {
               PopupMenuItem(
                 child: Center(
                   child:TextButton(
-                    child: const Text("Crear logro", style: TextStyle(color: Colors.black87, fontSize: 17.0), maxLines: 8,), 
+                    child: const Text("Crear reto", style: TextStyle(color: Colors.black87, fontSize: 17.0), maxLines: 8,), 
                     onPressed: (){
                       Navigator.push(context, MaterialPageRoute(builder: (context) => NuevoReto(user: widget.user)));
                     },
@@ -72,7 +74,7 @@ class _BottomNavState extends State<BottomNav> {
               PopupMenuItem(
                 child: Center(
                   child:TextButton(
-                    child: const Text("Reclamar logro", style: TextStyle(color: Colors.black87, fontSize: 17.0)), 
+                    child: const Text("Reclamar reto", style: TextStyle(color: Colors.black87, fontSize: 17.0)), 
                     onPressed: (){
                       Navigator.push(context, MaterialPageRoute(builder: (context) => ReclamarLogro(user: widget.user)));
                     },
@@ -84,21 +86,29 @@ class _BottomNavState extends State<BottomNav> {
           )
         )
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: const Color.fromARGB(255, 180, 50, 87),
+        type: BottomNavigationBarType.shifting,
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
             label: 'Muro',
+            backgroundColor: Color.fromARGB(255, 180, 50, 87),
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.emoji_events_rounded),
-            label: 'Logros',
+            label: 'Retos',
+            backgroundColor: Color.fromARGB(255, 180, 50, 87),
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.people),
+            icon: Icon(Icons.person),
             label: 'Usuarios',
+            backgroundColor: Color.fromARGB(255, 180, 50, 87),
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.groups),
+            label: 'Equipos',
+            backgroundColor: Color.fromARGB(255, 180, 50, 87),
           ),
         ],
         currentIndex: _selectedIndex,

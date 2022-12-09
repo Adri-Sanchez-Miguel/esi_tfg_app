@@ -44,13 +44,16 @@ class _ChallengeDetailState extends State<ChallengeDetail> {
             const Text("Disponible hasta:", style: TextStyle(fontSize: 35.0, fontWeight: FontWeight.w700),),
             _getDate(widget.challenge['end_date'].toDate()),
             const SizedBox(height: 20.0,),
+            const Text("Reto creado para:", style: TextStyle(fontSize: 35.0, fontWeight: FontWeight.w700),),
+            _getRol(widget.challenge['users_visibility']),
+            const SizedBox(height: 20.0,),
             const Text("Nivel:", style: TextStyle(fontSize: 35.0, fontWeight: FontWeight.w700),),
             _getLevel(widget.challenge['level']),
             const SizedBox(height: 20.0, 
             child: Divider(thickness: 3.0, color: Color.fromARGB(255, 180, 50, 87),),),
             const SizedBox(height: 5.0,),
             !widget.challenge['friendly'] ? 
-               widget.challenge['users_visibility'] != widget.user!['role'] ? 
+              widget.challenge['users_visibility'] != widget.user!['role'] ? 
                   const Text("Código QR:", style: TextStyle(fontSize: 35.0, fontWeight: FontWeight.w700),): Container(height: 0.0,)
               : Container(height: 0.0,),
             const SizedBox(height: 10.0,),
@@ -60,6 +63,19 @@ class _ChallengeDetailState extends State<ChallengeDetail> {
         )
       )
     );
+  }
+
+  Widget _getRol(String rol) {
+    switch(rol){
+      case 'profesor':
+        return const Text("Profesores", style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.w500));
+      case 'mentor':
+        return const Text("Mentores", style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.w500));
+      case 'mentorizado':
+        return const Text("Mentorizados", style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.w500));
+      default:
+        return const Text("Todo el mundo", style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.w500));
+    }
   }
   
   Widget _getLevel(int level) {
@@ -71,7 +87,7 @@ class _ChallengeDetailState extends State<ChallengeDetail> {
       case 20:
         return Image.asset('images/gold.png',height: 70.0);
       default:
-        return const Text("Error", style: TextStyle(fontSize: 17.0, fontWeight: FontWeight.w500));
+        return const Text("Error", style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.w500));
     }
   }
 
@@ -96,7 +112,7 @@ class _ChallengeDetailState extends State<ChallengeDetail> {
           size: 200.0,
         )
       )
-    ): const Center(child: Text("¡Reclama este reto escaneando su QR!", style: TextStyle(fontSize: 18.0,  fontWeight: FontWeight.w500)));
+    ): const Center(child: Text("¡Reclama este reto escaneando su QR!", style: TextStyle(fontSize: 20.0,  fontWeight: FontWeight.w500)));
   }
 
   Widget _getButton(BuildContext context){
@@ -114,7 +130,7 @@ class _ChallengeDetailState extends State<ChallengeDetail> {
           }
         );
       }
-    ): const Center(child: Text("¡Reclama este reto escaneando su QR!", style: TextStyle(fontSize: 18.0,  fontWeight: FontWeight.w500)));
+    ): const Center(child: Text("¡Reclama este reto escaneando su QR!", style: TextStyle(fontSize: 20.0,  fontWeight: FontWeight.w500)));
   }
 
   Widget _getCapture(){

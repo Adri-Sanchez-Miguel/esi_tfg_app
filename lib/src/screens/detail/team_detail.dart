@@ -1,12 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:esi_tfg_app/src/screens/detail/user_detail.dart';
 import 'package:esi_tfg_app/src/services/firestore_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 class TeamDetail extends StatefulWidget {
   final QueryDocumentSnapshot<Map<String, dynamic>>? team;
-  const TeamDetail({Key? key, required this.team}) : super(key: key);
+  final User? loggedInUser;
+  const TeamDetail({Key? key, required this.team, this.loggedInUser}) : super(key: key);
 
 @override
   State<TeamDetail> createState() => _TeamDetailState();
@@ -123,7 +125,7 @@ class _TeamDetailState extends State<TeamDetail> {
         textStyle: const TextStyle(fontSize: 20),
       ),
       onPressed: () {
-        Navigator.push(context, MaterialPageRoute(builder: (context) => UserDetail(user: selectedTeacher)));
+        Navigator.push(context, MaterialPageRoute(builder: (context) => UserDetail(user: selectedTeacher, loggedInUser: widget.loggedInUser,)));
       },
       child: Text(selectedTeacher['email']),
     );
@@ -138,7 +140,7 @@ class _TeamDetailState extends State<TeamDetail> {
         textStyle: const TextStyle(fontSize: 20),
       ),
       onPressed: () {
-        Navigator.push(context, MaterialPageRoute(builder: (context) => UserDetail(user: selectedMentor)));
+        Navigator.push(context, MaterialPageRoute(builder: (context) => UserDetail(user: selectedMentor, loggedInUser: widget.loggedInUser,)));
       },
       child: Text(selectedMentor['email']),
     );
@@ -159,7 +161,7 @@ class _TeamDetailState extends State<TeamDetail> {
             textStyle: const TextStyle(fontSize: 20),
           ),
           onPressed: () {
-            Navigator.push(context, MaterialPageRoute(builder: (context) => UserDetail(user: selectedStudent)));
+            Navigator.push(context, MaterialPageRoute(builder: (context) => UserDetail(user: selectedStudent, loggedInUser: widget.loggedInUser,)));
           },
           child: Text(selectedStudent['email']),
         )
