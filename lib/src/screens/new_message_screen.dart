@@ -59,9 +59,19 @@ class _NuevoMensajeState extends State<NuevoMensaje> {
               const SizedBox(height: 30.0),
               _getText(),
               const SizedBox(height: 30.0),
-              ContainTextField(maxLines: 2, hint: "Titula la publicación", label: "Título", controller: _titleController),
+              ContainTextField(
+                maxLines: 2, 
+                hint: "Titula la publicación", 
+                label: "Título", 
+                controller: _titleController
+              ),
               const SizedBox(height: 30.0,),
-              ContainTextField(maxLines: 7, hint: "Mensaje de la publicación", label: "Mensaje", controller: _messageController),
+              ContainTextField(
+                maxLines: 7, 
+                hint: "Mensaje de la publicación", 
+                label: "Mensaje", 
+                controller: _messageController
+              ),
               const SizedBox(height: 10.0),
               imageFile == null ? 
                 Padding(
@@ -250,7 +260,7 @@ class _NuevoMensajeState extends State<NuevoMensaje> {
           Navigator.pop(context);
           Navigator.pushNamed(context, "/home");
         } : ()async{ Fluttertoast.showToast(
-          msg: "Introduzca título, descripción y visibilidad",
+          msg: "Introduzca título, descripción, grado y visibilidad",
           fontSize: 20,
           gravity: ToastGravity.CENTER,
           backgroundColor: Colors.red[300]

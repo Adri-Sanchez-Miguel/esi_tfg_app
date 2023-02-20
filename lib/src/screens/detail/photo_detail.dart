@@ -21,52 +21,58 @@ class PhotoDetail extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      body: SafeArea(child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: <Widget>[
-          Padding(
-            padding:const EdgeInsets.only(top: 50.0, left: 15.0, right: 15.0),
-            child: Image.file(
-              imageFile!,
-              fit: BoxFit.cover,
-            ),
-          ),
-          Expanded(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: <Widget>[
-                Padding(
-                  padding:const EdgeInsets.only(left: 10.0, right: 10.0),
-                  child: AppButton(
-                    icon: Icons.arrow_back,
-                    color: const Color.fromARGB(255, 180, 50, 87), 
-                    onPressed: ()async{Navigator.pop(context);}, 
-                    name: "Volver   ", 
-                    colorText: Colors.white)
+      body: SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              Flexible(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: <Widget>[
+                    Padding(
+                      padding:const EdgeInsets.only(left: 10.0, right: 10.0, top: 40.0),
+                      child: 
+                        AppButton(
+                        icon: Icons.arrow_back,
+                        color: const Color.fromARGB(255, 180, 50, 87), 
+                        onPressed: ()async{Navigator.pop(context);}, 
+                        name: "Volver   ", 
+                        colorText: Colors.white
+                      )
+                    ),
+                    Padding(
+                      padding:const EdgeInsets.only(left: 10.0, right: 10.0, top: 40.0),
+                      child: 
+                        AppButton(
+                          icon: Icons.arrow_forward,
+                          color: const Color.fromARGB(255, 180, 50, 87), 
+                          onPressed: () async{
+                            method ? _savePhoto() : _updatePublication();
+                            await storage.uploadFile(imageFile, imageName);
+                            await Future.delayed(const Duration(milliseconds: 200)).then((_) => {
+                              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const Home()))
+                            });
+                          }, 
+                          name: "Confirmar", 
+                          colorText: Colors.white
+                        )
+                      ) 
+                  ]
                 ),
-                Padding(
-                  padding:const EdgeInsets.only(left: 10.0, right: 10.0),
-                  child: AppButton(
-                    icon: Icons.arrow_forward,
-                    color: const Color.fromARGB(255, 180, 50, 87), 
-                    onPressed: () async{
-                      method ? _savePhoto() : _updatePublication();
-                      await storage.uploadFile(imageFile, imageName);
-                      await Future.delayed(const Duration(milliseconds: 200)).then((_) => {
-                        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const Home()))
-                      });
-                    }, 
-                    name: "Confirmar", 
-                    colorText: Colors.white)
-                  ) 
-              ]
-            ),
-          ),
-        ]
-      )
-    )
+              ),
+              Padding(
+                padding:const EdgeInsets.only(top: 40.0, left: 15.0, right: 15.0),
+                child: Image.file(
+                  imageFile!,
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ]
+          )
+        )
     );
   }
 

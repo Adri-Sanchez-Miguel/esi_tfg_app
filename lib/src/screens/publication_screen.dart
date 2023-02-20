@@ -426,6 +426,7 @@ class _PublicationsScreenState extends State<PublicationsScreen> {
                     child: Hero(
                       tag: publication.reference.toString(),
                       child: CachedNetworkImage(
+                        width: 300,
                         key: ValueKey<String>(snapshot.data!),
                         imageUrl: snapshot.data!,
                         placeholder: (context, url) => const Text ("Cargando..."),

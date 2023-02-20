@@ -23,6 +23,7 @@ class TeamRanking extends StatefulWidget {
 
 class _TeamRankingState extends State<TeamRanking> {
   late User loggedInUser;
+  late List<Map<String,dynamic>> _ordered;
   QuerySnapshot<Map<String, dynamic>>? _teams;
   QuerySnapshot<Map<String, dynamic>>? _users;
   QuerySnapshot<Map<String, dynamic>>? _degrees;
@@ -85,11 +86,47 @@ class _TeamRankingState extends State<TeamRanking> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: ModalProgressHUD(
+    return DefaultTabController(
+        length: 2,
+        child: Scaffold(
+          appBar: AppBar(
+            elevation: 10.0,
+            toolbarHeight: 1,
+            automaticallyImplyLeading: false,
+            bottom: const TabBar(
+              indicatorColor: Colors.white,
+              indicatorWeight: 4,
+              tabs: [
+                Tab(icon: Icon(Icons.book),text: "Mi grado",),
+                Tab(icon: Icon(Icons.double_arrow),text: "Todos",)
+              ])
+            ),
+          body: TabBarView(
+            children: [
+              ModalProgressHUD(
+                inAsyncCall: _showSpinner,
+                child: SafeArea(
+                  child: _getMainWidget(true)
+                ),
+              ),
+              ModalProgressHUD(
+                inAsyncCall: _showSpinner,
+                child: SafeArea(
+                  child: _getMainWidget(false)
+                ),
+              )
+            ]
+          )
+      )
+    );
+  }
+
+  Widget _getMainWidget(bool decider){
+    return ModalProgressHUD(
         inAsyncCall: _showSpinner,
         child: SafeArea(
           child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               const SizedBox(height: 20.0,),
               Row(
@@ -120,12 +157,11 @@ class _TeamRankingState extends State<TeamRanking> {
                   ),
                 ],
               ),
-              _teams!= null ? _getTeams(_team) : const Text("Cargando..."),
+              _teams!= null ? _getTeams(_team, decider) : const Text("Cargando..."),
             ],
           ),
         ),
-      )
-    );
+      );
   }
 
   Widget _teamField(){
@@ -139,7 +175,7 @@ class _TeamRankingState extends State<TeamRanking> {
     ); 
   }
 
-  Widget _getTeams(String teamsSearched){
+  Widget _getTeams(String teamsSearched, bool decider){
     return FutureBuilder<QuerySnapshot<Map<String, dynamic>>>(
       future: FirestoreService().getMessage(collectionName: "teams"),
       builder: (context, snapshot){
@@ -158,29 +194,43 @@ class _TeamRankingState extends State<TeamRanking> {
               )
             ]
           )        
-          : snapshot.hasData ? Flexible(
-            child: ListView.builder(
-              addRepaintBoundaries: true,
-              itemCount: snapshot.data!.docs.length,
-              itemBuilder: (context, index) =>
-                _getItems(context, snapshot.data!.docs[index], teamsSearched),
-            )
-          )
+          : snapshot.hasData ? 
+            _getOrderTeams(snapshot.data!.docs,teamsSearched, decider)
         : Container(height: 0.0,);
       },
     );
   }
 
-  Widget _getAppCard(Widget? icon, QueryDocumentSnapshot<Map<String, dynamic>> team){
-    String number = team['name'].toString();
-    String degree = team['degree'];
-    Color background = Colors.white;
+  Widget _getOrderTeams(List<QueryDocumentSnapshot<Map<String, dynamic>>> teams, String teamsSearched, bool decider){
+    _ordered = [];
+    QueryDocumentSnapshot<Map<String, dynamic>> user = _users!.docs.firstWhere((element) => element["email"] == loggedInUser.email);
+    for (var team in teams){
+      if(decider){
+        if(team["degree"] == user["degree"]){
+          _ordered.add(_getOrder(context, team));
+        }
+      }else{
+        _ordered.add(_getOrder(context, team));
+      }
+    }
+    _ordered.sort((a,b) => b["exp"].compareTo(a["exp"]));
+    
+    return Flexible(
+      child: ListView.builder(
+        scrollDirection: Axis.vertical,
+        shrinkWrap: true,
+        physics:  const AlwaysScrollableScrollPhysics(),
+        addRepaintBoundaries: true,
+        itemCount: _ordered.length,
+        itemBuilder: (context, index) =>
+          _getItems(context, _ordered[index], teamsSearched),
+      )
+    );
+  }
+  
+  Map<String, dynamic> _getOrder(BuildContext context, QueryDocumentSnapshot<Map<String, dynamic>> team) {
     int teamExp=0;
     double expMedia;
-
-    QueryDocumentSnapshot<Map<String, dynamic>>? docDegree = 
-      _degrees!.docs.firstWhere((element) => element['titulo'] == degree);
-    Color decoration = Color.fromARGB(docDegree['color'][0], docDegree['color'][1], docDegree['color'][2], docDegree['color'][3]);
 
     DocumentReference refProfesor = team['teacher'];
     QueryDocumentSnapshot<Map<String, dynamic>>? teacherDoc = 
@@ -207,29 +257,9 @@ class _TeamRankingState extends State<TeamRanking> {
     }else{
       expMedia = teamExp / (studentsMap.length+1);
     }
-    
-    
-    return AppCard(
-      active: false,
-      color: background,
-      radius: 3.0,
-      borderColor: decoration,
-      iconColor: decoration,
-      textColor: Colors.black,
-      leading: icon,
-      title: Text.rich(
-        TextSpan(
-          text: '', 
-          children: <TextSpan>[
-            TextSpan(text: 'Equipo $number\n', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18.0)),
-          ],
-        ),
-      ),
-      subtitle: Text('Experiencia media: $expMedia px\nGrado: $degree', style: const TextStyle(fontSize: 15.0)),
-      onTap: (){
-        Navigator.push(context, MaterialPageRoute(builder: (context) => TeamDetail(team: team, loggedInUser: loggedInUser,)));
-      }
-    );
+
+    Map <String,dynamic> componentOrdered = {"team":team,"exp":expMedia};
+    return componentOrdered;
   }
 
   int _addChallenges(Map<String, dynamic> challengesDoneMap){
@@ -252,16 +282,50 @@ class _TeamRankingState extends State<TeamRanking> {
     return totalExp;
   }
 
-  Widget _getItems(BuildContext context, QueryDocumentSnapshot<Map<String, dynamic>> team, String teamSearched){
+  Widget _getItems(BuildContext context, Map<String,dynamic> mapTeam, String teamsSearched){
+    QueryDocumentSnapshot<Map<String, dynamic>> team = mapTeam["team"];
     String conjunto = "Equipo ${team['name'].toString()}";
-    if(teamSearched == ""){
-      return _getAppCard(const Icon(Icons.groups_rounded),team);
+    if(teamsSearched == ""){
+      return _getAppCard(team, mapTeam["exp"]);
     }else{
-      if(conjunto.contains(teamSearched)){
-        return _getAppCard(const Icon(Icons.groups_rounded),team);
+      if(conjunto.contains(teamsSearched)){
+        return _getAppCard(team, mapTeam["exp"]);
       }else{
         return Container(height: 0.0,);
       }
     }
+  }
+  
+  Widget _getAppCard(QueryDocumentSnapshot<Map<String, dynamic>> team, double expMedia) {
+    Widget? icon = const Icon(Icons.groups_rounded);
+    String number = team['name'].toString();
+    String degree = team['degree'];
+    Color background = Colors.white;
+
+    QueryDocumentSnapshot<Map<String, dynamic>>? docDegree = 
+      _degrees!.docs.firstWhere((element) => element['titulo'] == degree);
+    Color decoration = Color.fromARGB(docDegree['color'][0], docDegree['color'][1], docDegree['color'][2], docDegree['color'][3]);
+
+    return AppCard(
+      active: false,
+      color: background,
+      radius: 3.0,
+      borderColor: decoration,
+      iconColor: decoration,
+      textColor: Colors.black,
+      leading: icon,
+      title: Text.rich(
+        TextSpan(
+          text: '', 
+          children: <TextSpan>[
+            TextSpan(text: 'Equipo $number\n', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18.0)),
+          ],
+        ),
+      ),
+      subtitle: Text('Experiencia media: $expMedia px\nGrado: $degree', style: const TextStyle(fontSize: 15.0)),
+      onTap: (){
+        Navigator.push(context, MaterialPageRoute(builder: (context) => TeamDetail(team: team, loggedInUser: loggedInUser,)));
+      }
+    );
   }
 }

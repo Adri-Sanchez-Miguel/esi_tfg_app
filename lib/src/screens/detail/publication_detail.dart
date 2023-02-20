@@ -86,12 +86,22 @@ class _PublicationDetailState extends State<PublicationDetail>{
                   const Text("Publicado el:", style: TextStyle(fontSize: 25.0, fontWeight: FontWeight.w700),),
                   Text(date, style: const TextStyle(fontSize: 17.0, fontWeight: FontWeight.w500),),
                   const SizedBox(height: 15.0,),
+                  const Center(child:Text("¡Pulsa para ver quién ha dado like!", style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.w300))),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
-                      const Icon(Icons.favorite, color: Color.fromARGB(255, 180, 50, 87),),
-                      Text("$numLikes", style: const TextStyle(fontSize: 25.0, fontWeight: FontWeight.w700),),
+                      const Icon(Icons.favorite, color: Color.fromARGB(255, 211, 13, 69),),
+                      TextButton(
+                        style: TextButton.styleFrom(
+                          foregroundColor: const Color.fromARGB(255, 0,0,0),
+                          textStyle: const TextStyle(fontSize: 25),
+                        ),
+                        onPressed: () {
+                          _getModalSheet(context, likes);
+                        },
+                        child:Text("$numLikes", style: const TextStyle(fontSize: 25.0, fontWeight: FontWeight.w700),),
+                      ),
                     ],
                   ),
                   const Divider(thickness: 3.0, height: 5.0, color: Color.fromARGB(255, 180, 50, 87),),
@@ -142,6 +152,74 @@ class _PublicationDetailState extends State<PublicationDetail>{
         )
       ); 
     }
+  }
+
+  Future<dynamic> _getModalSheet(BuildContext context, Map<String, dynamic> likes){
+    List <Widget> people = [];
+    Iterable<dynamic> iterableLikes = likes.values;
+    for(var person in iterableLikes){
+      people.add(_getAppCard(person));
+    }
+    return showModalBottomSheet(
+      context: context, 
+      builder: (BuildContext context){
+        return SizedBox(
+          height: 600.0,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[ 
+              const SizedBox(height: 20.0,),
+              const Center(child:Text("Me gusta", style: TextStyle(fontSize: 35.0, fontWeight: FontWeight.w700),),),
+              const SizedBox(height: 20.0,),
+              Flexible(
+                child: Padding(
+                  padding: const EdgeInsets.all(5.0),
+                  child:Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: Colors.grey, width: 2.0)
+                    ),
+                    child:ListView.builder(
+                      physics:  const AlwaysScrollableScrollPhysics(),
+                      addRepaintBoundaries: true,
+                      itemCount: people.length,
+                      itemBuilder: (context, index) =>
+                        people[index]
+                    )
+                  )
+                )
+              )
+            ]
+          )
+        );
+      }
+    );
+  }
+
+  Widget _getAppCard(String person){
+    Widget? icon = const Icon(Icons.person);
+    Color colorDecoration = Colors.black;
+    String title = person;
+
+    return AppCard(
+      active: false,
+      color: Colors.white,
+      radius: 3.0,
+      borderColor: colorDecoration,
+      textColor: Colors.black,
+      leading: icon,
+      title: Text.rich(
+        TextSpan(
+          text: '', 
+          children: <TextSpan>[
+            TextSpan(text: '$title\n', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0)),
+          ],
+        ),
+      ),
+      onTap: (){}
+    );
   }
 
   Widget _getTextForm(){

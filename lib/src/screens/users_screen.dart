@@ -48,7 +48,7 @@ class _UsersScreenState extends State<UsersScreen> {
   void _getRightUser() async {
     try{
     var user = await Authentication().getRightUser();
-    _users = await FirestoreService().getMessage(collectionName: "users");
+    _users = await FirestoreService().getOrderedMessage(field: "status",collectionName: "users");
     if (user != null){
       if(mounted){
         setState(() {
@@ -79,11 +79,47 @@ class _UsersScreenState extends State<UsersScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: ModalProgressHUD(
+    return DefaultTabController(
+        length: 2,
+        child: Scaffold(
+          appBar: AppBar(
+            elevation: 10.0,
+            toolbarHeight: 1,
+            automaticallyImplyLeading: false,
+            bottom: const TabBar(
+              indicatorColor: Colors.white,
+              indicatorWeight: 4,
+              tabs: [
+                Tab(icon: Icon(Icons.book),text: "Mi grado",),
+                Tab(icon: Icon(Icons.double_arrow),text: "Todos",)
+              ])
+            ),
+          body: TabBarView(
+            children: [
+              ModalProgressHUD(
+                inAsyncCall: _showSpinner,
+                child: SafeArea(
+                  child: _getMainWidget(true)
+                ),
+              ),
+              ModalProgressHUD(
+                inAsyncCall: _showSpinner,
+                child: SafeArea(
+                  child: _getMainWidget(false)
+                ),
+              )
+            ]
+          )
+      )
+    );
+  }
+
+  Widget _getMainWidget(bool decider){
+    return ModalProgressHUD(
         inAsyncCall: _showSpinner,
         child: SafeArea(
           child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               const SizedBox(height: 20.0,),
               Row(
@@ -115,12 +151,11 @@ class _UsersScreenState extends State<UsersScreen> {
                   ),
                 ],
               ),
-              _users!= null ? _getUsers(_user) : const Text("Cargando..."),
+              _users!= null ? _getUsers(_user, decider) : const Text("Cargando..."),
             ],
           ),
         ),
-      )
-    );
+      );
   }
 
   Widget _emailField(){
@@ -135,9 +170,9 @@ class _UsersScreenState extends State<UsersScreen> {
     ); 
   }
 
-  Widget _getUsers(String usersSearched){
+  Widget _getUsers(String usersSearched, bool decider){
     return FutureBuilder<QuerySnapshot<Map<String, dynamic>>>(
-      future: FirestoreService().getMessage(collectionName: "users"),
+      future: FirestoreService().getOrderedMessage(field: "status",collectionName: "users"),
       builder: (context, snapshot){
         return snapshot.connectionState == ConnectionState.waiting ? 
           Row(
@@ -159,7 +194,7 @@ class _UsersScreenState extends State<UsersScreen> {
               addRepaintBoundaries: true,
               itemCount: snapshot.data!.docs.length,
               itemBuilder: (context, index) =>
-                _getItems(context, snapshot.data!.docs[index], usersSearched),
+                _getItems(context, snapshot.data!.docs[index], usersSearched, decider),
             )
           )
         : Container(height: 0.0,);
@@ -197,19 +232,32 @@ class _UsersScreenState extends State<UsersScreen> {
     );
   }
 
-  Widget _getItems(BuildContext context, QueryDocumentSnapshot<Map<String, dynamic>> user, String usersSearched){
-   Widget? icon; 
-   if(user["image"] != ""){
+  Widget _getItems(BuildContext context, QueryDocumentSnapshot<Map<String, dynamic>> user, String usersSearched, bool decider){
+    Widget? icon; 
+    QueryDocumentSnapshot<Map<String, dynamic>> myUser = _users!.docs.firstWhere((element) => element["email"] == loggedInUser.email);
+    if(user["image"] != ""){
       icon = _getPhoto(user["image"], 300.0);
     }else{
       icon = const Icon(Icons.perm_identity_outlined);
     }
     if(user['email'] != loggedInUser.email){
       if(usersSearched == ""){
-        return _getAppCard(icon,user, Colors.black);
+        if (decider){
+          if(myUser["degree"] == user["degree"]){
+            return _getAppCard(icon,user, Colors.black);
+          }else{return Container(height: 0.0,);}
+        }else{        
+          return _getAppCard(icon,user, Colors.black);
+        }
       }else{
         if(user['email'].contains(usersSearched)){
-          return _getAppCard(icon,user, Colors.black);
+          if (decider){
+            if(myUser["degree"] == user["degree"]){
+              return _getAppCard(icon,user, Colors.black);
+            }else{return Container(height: 0.0,);}
+          }else{        
+            return _getAppCard(icon,user, Colors.black);
+          }
         }else{return Container(height: 0.0,);}
       }
     }else{return Container(height: 0.0,);}
@@ -240,6 +288,7 @@ class _UsersScreenState extends State<UsersScreen> {
             children: [
               SizedBox (
                 height: height,
+                width: 50,
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(5),
                   child: CachedNetworkImage(

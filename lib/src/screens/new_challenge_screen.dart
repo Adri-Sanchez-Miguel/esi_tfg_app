@@ -58,11 +58,26 @@ class _NuevoRetoState extends State<NuevoReto> {
               const SizedBox(height: 30.0),
               _getText(),
               const SizedBox(height: 30.0),
-              ContainTextField(maxLines: 2, hint: "Nombre del reto", label: "Nombre", controller: _nameController),
+              ContainTextField(
+                maxLines: 2, 
+                hint: "Nombre del reto", 
+                label: "Nombre", 
+                controller: _nameController
+              ),
               const SizedBox(height: 20.0,),
-              ContainTextField(maxLines: 5, hint: "Descripción del reto", label: "Descripción", controller: _descriptionController),
+              ContainTextField(
+                maxLines: 5, 
+                hint: "Descripción del reto", 
+                label: "Descripción", 
+                controller: _descriptionController
+              ),
               const SizedBox(height: 20.0,),
-              ContainTextField(maxLines: 5, hint: "Código QR", label: "Clave QR", controller: _qrController),
+              ContainTextField(
+                maxLines: 5, 
+                hint: "Código QR", 
+                label: "Clave QR", 
+                controller: _qrController
+              ),
               const SizedBox(height: 20.0,), 
               _getFriendly(),           
               _getRow("¿A qué carrera pertenece el reto?", _showStringDegree, "degree"),
@@ -359,21 +374,33 @@ class _NuevoRetoState extends State<NuevoReto> {
       child: AppButton(
         colorText: Colors.white,
         color:const Color.fromRGBO(179, 0, 51, 1.0),
-        onPressed: _nameController.text != "" && _descriptionController.text != "" && _qrController.text != "" && level != 0 && _degreeString != "" && _rolString != "" ? ()async{
-          _createChallenge(_nameController.text, _descriptionController.text, _qrController.text);
-          _nameController.clear;
-          _descriptionController.clear;
-          Navigator.pop(context);
-          Navigator.pop(context);
-          Navigator.pushNamed(context, "/home");
-        } : ()async{ Fluttertoast.showToast(
-          msg: "Introduzca nombre, descripción, grado, visibilidad y nivel del reto",
-          fontSize: 20,
-          gravity: ToastGravity.CENTER,
-          backgroundColor: Colors.red[300]
-        );},
+        onPressed: _nameController.text != "" && _descriptionController.text != "" && level != 0 && _degreeString != "" && _rolString != "" ? ()async{
+          if (_friendly){
+            _createChallenge(_nameController.text, _descriptionController.text, _qrController.text);
+          }
+          else if (_qrController.text != ""){
+            _createChallenge(_nameController.text, _descriptionController.text, _qrController.text);
+          }
+          else{
+            _getErrorText();
+          }
+        } : ()async{ 
+          _getErrorText();
+        },
         name: 'Crear reto',
       )
+    );
+  }
+
+  void _getErrorText(){
+    final form = _formkey.currentState!;
+    form.validate;
+    String error = _getError(_nameController.text, _descriptionController.text, _qrController.text, level, _degreeString, _rolString);
+    Fluttertoast.showToast(
+      msg: "Introduzca $error",
+      fontSize: 20,
+      gravity: ToastGravity.CENTER,
+      backgroundColor: Colors.red[300]
     );
   }
 
@@ -389,7 +416,7 @@ class _NuevoRetoState extends State<NuevoReto> {
       });
     }
     var snap = await FirestoreService().getMessage(collectionName: "challenges");
-    if(!snap.docs.any((element) => element["qr_key"] == qr)){
+    if(!snap.docs.any((element) => element["qr_key"] == qr) || _friendly){
       await FirestoreService().save(collectionName: "challenges", collectionValues: {
         'degree': _degreeString,
         'end_date': finalDate,
@@ -401,6 +428,39 @@ class _NuevoRetoState extends State<NuevoReto> {
         'start_date': DateTime.now(),
         'users_visibility': _rolString
       }); 
+    }
+
+    await Future.delayed(const Duration(milliseconds: 100)).then((_) {
+      _nameController.clear;
+      _descriptionController.clear;
+      _qrController.clear;
+      Fluttertoast.showToast(
+        msg: "Reto creado",
+        fontSize: 20,
+        gravity: ToastGravity.CENTER,
+        backgroundColor: Colors.green
+      );
+      Navigator.pop(context);
+      Navigator.pop(context);
+      Navigator.pushNamed(context, "/home");      
+    });
+  }
+  
+  String _getError(String name, String description, String qr, int level, String degreeString, String rolString) {
+    if (name == ""){
+      return "nombre del reto.";
+    }else if(description == ""){
+      return "descripción del reto.";
+    }else if(degreeString == ""){
+      return "grado para el reto.";
+    }else if(rolString == ""){
+      return "visibilidad para el reto.";
+    }else if(level == 0){
+      return "nivel para el reto.";
+    }else if(qr == ""){
+      return "QR para el reto.";
+    }else{
+      return "error.";
     }
   }
 }

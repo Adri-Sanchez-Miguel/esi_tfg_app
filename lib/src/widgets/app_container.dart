@@ -9,12 +9,14 @@ class ContainTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    FocusNode focusNode = FocusNode();
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(5),
         border: Border.all(color: Colors.grey)),
       margin: const EdgeInsets.symmetric(horizontal: 15.0),
       child: TextFormField(
+        focusNode: focusNode,
         maxLines: maxLines,
         controller: controller,
         validator: ((value) {
